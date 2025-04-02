@@ -12,8 +12,10 @@ public:
 
     AStaticMeshActor* Duplicate() override {
         AStaticMeshActor* NewActor = FObjectFactory::ConstructObject<AStaticMeshActor>();
+
         if (StaticMeshComponent) {
-            UStaticMeshComponent* NewMeshComp = FObjectFactory::ConstructObject<UStaticMeshComponent>();
+            // 컴포넌트를 액터에 추가 (내부적으로 OwnedComponents에 등록됨)
+            UStaticMeshComponent* NewMeshComp = NewActor->AddComponent<UStaticMeshComponent>();
             NewMeshComp->CopyPropertiesFrom(StaticMeshComponent);
             NewActor->StaticMeshComponent = NewMeshComp;
             NewActor->RootComponent = NewMeshComp;
