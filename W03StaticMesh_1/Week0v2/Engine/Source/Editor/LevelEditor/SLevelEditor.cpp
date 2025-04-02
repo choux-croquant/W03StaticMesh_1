@@ -5,6 +5,7 @@
 #include "UnrealClient.h"
 #include "UnrealEd/EditorViewportClient.h"
 #include "EngineLoop.h"
+#include "EditorEngine.h"
 #include "fstream"
 #include "sstream"
 #include "ostream"
@@ -43,7 +44,7 @@ void SLevelEditor::Tick(double deltaTime)
     if (bMultiViewportMode) {
         POINT pt;
         GetCursorPos(&pt);
-        ScreenToClient(GEngineLoop.hWnd, &pt);
+        ScreenToClient(GEngineLoop.EditorEngine->hWnd, &pt);
         if (VSplitter->IsHover(FPoint(pt.x, pt.y)) || HSplitter->IsHover(FPoint(pt.x, pt.y)))
         {
             SetCursor(LoadCursor(NULL, IDC_SIZEALL));
@@ -72,7 +73,7 @@ void SLevelEditor::Input()
             POINT pt;
             GetCursorPos(&pt);
             GetCursorPos(&lastMousePos);
-            ScreenToClient(GEngineLoop.hWnd, &pt);
+            ScreenToClient(GEngineLoop.EditorEngine->hWnd, &pt);
 
             SelectViewport(pt);
 
@@ -114,7 +115,7 @@ void SLevelEditor::Input()
             POINT pt;
             GetCursorPos(&pt);
             GetCursorPos(&lastMousePos);
-            ScreenToClient(GEngineLoop.hWnd, &pt);
+            ScreenToClient(GEngineLoop.EditorEngine->hWnd, &pt);
 
             SelectViewport(pt);
         }
@@ -148,8 +149,8 @@ void SLevelEditor::OnResize()
 {
     float PrevWidth = EditorWidth;
     float PrevHeight = EditorHeight;
-    EditorWidth = GEngineLoop.graphicDevice.screenWidth;
-    EditorHeight = GEngineLoop.graphicDevice.screenHeight;
+    EditorWidth = GEngineLoop.EditorEngine->graphicDevice.screenWidth;
+    EditorHeight = GEngineLoop.EditorEngine->graphicDevice.screenHeight;
     if (bInitialize) {
         //HSplitter 에는 바뀐 width 비율이 들어감 
         HSplitter->OnResize(EditorWidth/PrevWidth, EditorHeight);

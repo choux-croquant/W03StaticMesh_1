@@ -1,6 +1,8 @@
 #include "PrimitiveBatch.h"
 #include "EngineLoop.h"
 #include "UnrealEd/EditorViewportClient.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
+
 extern FEngineLoop GEngineLoop;
 
 UPrimitiveBatch::UPrimitiveBatch()
@@ -35,15 +37,15 @@ void UPrimitiveBatch::GenerateGrid(float spacing, int gridCount)
 
 void UPrimitiveBatch::RenderBatch(const FMatrix& View, const FMatrix& Projection)
 {
-    FEngineLoop::renderer.PrepareLineShader();
+    UEditorEngine::renderer.PrepareLineShader();
 
     InitializeVertexBuffer();
 
     FMatrix Model = FMatrix::Identity;
     FMatrix MVP = Model * View * Projection;
     FMatrix NormalMatrix = FMatrix::Transpose(FMatrix::Inverse(Model));
-    FEngineLoop::renderer.UpdateConstant(MVP, NormalMatrix, FVector4(0,0,0,0), false);
-    FEngineLoop::renderer.UpdateGridConstantBuffer(GridParam);
+    UEditorEngine::renderer.UpdateConstant(MVP, NormalMatrix, FVector4(0,0,0,0), false);
+    UEditorEngine::renderer.UpdateGridConstantBuffer(GridParam);
 
     UpdateBoundingBoxResources();
     UpdateConeResources();
@@ -51,17 +53,17 @@ void UPrimitiveBatch::RenderBatch(const FMatrix& View, const FMatrix& Projection
     int boundingBoxSize = static_cast<int>(BoundingBoxes.Num());
     int coneSize = static_cast<int>(Cones.Num());
     int obbSize = static_cast<int>(OrientedBoundingBoxes.Num());
-    FEngineLoop::renderer.UpdateLinePrimitveCountBuffer(boundingBoxSize, coneSize);
-    FEngineLoop::renderer.RenderBatch(GridParam, pVertexBuffer, boundingBoxSize, coneSize, ConeSegmentCount, obbSize);
+    UEditorEngine::renderer.UpdateLinePrimitveCountBuffer(boundingBoxSize, coneSize);
+    UEditorEngine::renderer.RenderBatch(GridParam, pVertexBuffer, boundingBoxSize, coneSize, ConeSegmentCount, obbSize);
     BoundingBoxes.Empty();
     Cones.Empty();
     OrientedBoundingBoxes.Empty();
-    FEngineLoop::renderer.PrepareShader();
+    UEditorEngine::renderer.PrepareShader();
 }
 void UPrimitiveBatch::InitializeVertexBuffer()
 {
     if (!pVertexBuffer)
-        pVertexBuffer = FEngineLoop::renderer.CreateStaticVerticesBuffer();
+        pVertexBuffer = UEditorEngine::renderer.CreateStaticVerticesBuffer();
 }
 
 void UPrimitiveBatch::UpdateBoundingBoxResources()
@@ -71,13 +73,13 @@ void UPrimitiveBatch::UpdateBoundingBoxResources()
 
         ReleaseBoundingBoxResources();
 
-        pBoundingBoxBuffer = FEngineLoop::renderer.CreateBoundingBoxBuffer(static_cast<UINT>(allocatedBoundingBoxCapacity));
-        pBoundingBoxSRV = FEngineLoop::renderer.CreateBoundingBoxSRV(pBoundingBoxBuffer, static_cast<UINT>(allocatedBoundingBoxCapacity));
+        pBoundingBoxBuffer = UEditorEngine::renderer.CreateBoundingBoxBuffer(static_cast<UINT>(allocatedBoundingBoxCapacity));
+        pBoundingBoxSRV = UEditorEngine::renderer.CreateBoundingBoxSRV(pBoundingBoxBuffer, static_cast<UINT>(allocatedBoundingBoxCapacity));
     }
 
     if (pBoundingBoxBuffer && pBoundingBoxSRV){
         int boundingBoxCount = static_cast<int>(BoundingBoxes.Num());
-        FEngineLoop::renderer.UpdateBoundingBoxBuffer(pBoundingBoxBuffer, BoundingBoxes, boundingBoxCount);
+        UEditorEngine::renderer.UpdateBoundingBoxBuffer(pBoundingBoxBuffer, BoundingBoxes, boundingBoxCount);
     }
 }
 
@@ -94,13 +96,13 @@ void UPrimitiveBatch::UpdateConeResources()
 
         ReleaseConeResources();
 
-        pConesBuffer = FEngineLoop::renderer.CreateConeBuffer(static_cast<UINT>(allocatedConeCapacity));
-        pConesSRV = FEngineLoop::renderer.CreateConeSRV(pConesBuffer, static_cast<UINT>(allocatedConeCapacity));
+        pConesBuffer = UEditorEngine::renderer.CreateConeBuffer(static_cast<UINT>(allocatedConeCapacity));
+        pConesSRV = UEditorEngine::renderer.CreateConeSRV(pConesBuffer, static_cast<UINT>(allocatedConeCapacity));
     }
 
     if (pConesBuffer && pConesSRV) {
         int coneCount = static_cast<int>(Cones.Num());
-        FEngineLoop::renderer.UpdateConesBuffer(pConesBuffer, Cones, coneCount);
+        UEditorEngine::renderer.UpdateConesBuffer(pConesBuffer, Cones, coneCount);
     }
 }
 
@@ -117,13 +119,13 @@ void UPrimitiveBatch::UpdateOBBResources()
 
         ReleaseOBBResources();
 
-        pOBBBuffer = FEngineLoop::renderer.CreateOBBBuffer(static_cast<UINT>(allocatedOBBCapacity));
-        pOBBSRV = FEngineLoop::renderer.CreateOBBSRV(pOBBBuffer, static_cast<UINT>(allocatedOBBCapacity));
+        pOBBBuffer = UEditorEngine::renderer.CreateOBBBuffer(static_cast<UINT>(allocatedOBBCapacity));
+        pOBBSRV = UEditorEngine::renderer.CreateOBBSRV(pOBBBuffer, static_cast<UINT>(allocatedOBBCapacity));
     }
 
     if (pOBBBuffer && pOBBSRV) {
         int obbCount = static_cast<int>(OrientedBoundingBoxes.Num());
-        FEngineLoop::renderer.UpdateOBBBuffer(pOBBBuffer, OrientedBoundingBoxes, obbCount);
+        UEditorEngine::renderer.UpdateOBBBuffer(pOBBBuffer, OrientedBoundingBoxes, obbCount);
     }
 }
 void UPrimitiveBatch::ReleaseOBBResources()

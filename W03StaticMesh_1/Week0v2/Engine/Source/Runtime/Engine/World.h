@@ -15,6 +15,13 @@ class AEditorPlayer;
 class USceneComponent;
 class UTransformGizmo;
 
+struct FWorldContext {
+    UWorld* World;
+    EWorldType::Type WorldType;     // Context가 World의 Type을 소유
+
+
+};
+
 class UWorld final : public UObject
 {
     DECLARE_CLASS(UWorld, UObject)
