@@ -32,7 +32,8 @@ float4 main(PSInput input) : SV_TARGET {
     float threshold = 0.05; // 필요한 경우 임계값을 조정
     if (col.r < threshold && col.g < threshold && col.b < threshold)
         clip(-1); // 픽셀 버리기
-    
+    if (col.a < threshold) // 알파 값으로 투명도 판단
+        clip(-1);
     output.color = col;
     output.uuid = UUID;
     

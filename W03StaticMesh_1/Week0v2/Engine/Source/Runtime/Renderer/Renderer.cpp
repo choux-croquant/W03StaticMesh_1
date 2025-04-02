@@ -1182,27 +1182,10 @@ void FRenderer::RenderText(UWorld* World, std::shared_ptr<FEditorViewportClient>
         else
             UpdateConstant(MVP, NormalMatrix, UUIDColor, false);
 
-        if (UParticleSubUVComp* SubUVParticle = Cast<UParticleSubUVComp>(TextComp))
-        {
-            RenderTexturePrimitive(
-                SubUVParticle->vertexSubUVBuffer, SubUVParticle->numTextVertices,
-                SubUVParticle->indexTextureBuffer, SubUVParticle->numIndices, SubUVParticle->Texture->TextureSRV, SubUVParticle->Texture->SamplerState
-            );
-        }
-        else if (UTextRenderComponent* Text = Cast<UTextRenderComponent>(TextComp))
-        {
-            UEditorEngine::renderer.RenderTextPrimitive(
-                Text->vertexTextBuffer, Text->numTextVertices,
-                Text->Texture->TextureSRV, Text->Texture->SamplerState
-            );
-        }
-        else
-        {
-            RenderTexturePrimitive(
-                TextComp->vertexTextureBuffer, TextComp->numVertices,
-                TextComp->indexTextureBuffer, TextComp->numIndices, TextComp->Texture->TextureSRV, TextComp->Texture->SamplerState
-            );
-        }
+        RenderTextPrimitive(
+            TextComp->vertexTextBuffer, TextComp->numTextVertices,
+            TextComp->Texture->TextureSRV, TextComp->Texture->SamplerState
+        );
     }
     PrepareShader();
 }
