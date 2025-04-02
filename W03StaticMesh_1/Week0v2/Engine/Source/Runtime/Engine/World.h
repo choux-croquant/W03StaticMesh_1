@@ -16,10 +16,11 @@ class USceneComponent;
 class UTransformGizmo;
 
 struct FWorldContext {
-    UWorld* World;
-    EWorldType::Type WorldType;     // Context가 World의 Type을 소유
+    UWorld* World = nullptr;
 
-
+    FWorldContext(const EWorldType::Type InWorldType) {
+        World = UWorld::CreateWorld(InWorldType);
+    }
 };
 
 class UWorld final : public UObject
