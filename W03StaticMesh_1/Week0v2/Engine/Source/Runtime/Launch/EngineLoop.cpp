@@ -249,14 +249,52 @@ UWorld* FEngineLoop::DuplicateWorldForPIE(UWorld* SourceWorld)
     if (!SourceWorld)
         return nullptr;
 
-    EditorWorld = SourceWorld;
+    //EditorWorld = SourceWorld;
 
-    SourceWorld = new UWorld();
-    SourceWorld->Initialize();
+    TSet<AActor*> SourceActors = SourceWorld->GetActors();
+    TSet<AActor*> ClonedActors;
+    TSet<AActor*> BackupActors;
+
+    for (AActor* SourceActor : SourceWorld->GetActors())
+    {
+        if (!SourceActor)
+            continue;
+         
+        BackupActors.Add(SourceActor);     
+    }
+
+    for (AActor* SourceActor : SourceActors)
+    {
+        if (!SourceActor)
+            continue;
+
+       ClonedActors.Add(SourceActor);
+    }
+
+    // 새 PIE 월드 생성
+    UWorld* PIEWorld = new UWorld();
+    PIEWorld->SetActors(ClonedActors);
+    PIEWorld->Initialize();
 
     //TODO Acotr, Component도 복제 필요
 
-    return SourceWorld;
+    return PIEWorld;
+}
+
+void FEngineLoop::StartPIEMode()
+{
+    GWorld = DuplicateWorldForPIE(GWorld);
+}
+
+void FEngineLoop::EndPIEMode()
+{
+   /* if (GWorld && GWorld->IsPIEWorld())
+    {
+        GWorld->CleanupWorld();
+        delete GWorld;
+    }
+
+    GWorld = GEditor->GetEditorWorldContext().World();*/
 }
 
 void FEngineLoop::Exit()

@@ -1,4 +1,4 @@
-﻿#include "ControlEditorPanel.h"
+#include "ControlEditorPanel.h"
 
 #include "World.h"
 #include "Actors/Player.h"
@@ -319,8 +319,16 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                 }
             }
         }
+
         ImGui::EndPopup();
     }
+
+    ImGui::SameLine();
+    if (ImGui::Button("\u25B6")) // ▶ (Black right-pointing triangle)
+    {
+        GEngineLoop.StartPIEMode();
+    }
+   
 }
 
 void ControlEditorPanel::CreateFlagButton() const

@@ -25,6 +25,8 @@ public:
     float GetAspectRatio(IDXGISwapChain* swapChain) const;
     void Input();
     UWorld* DuplicateWorldForPIE(UWorld* SourceWorld);
+    void StartPIEMode();
+    void EndPIEMode();
 
 private:
     void WindowInit(HINSTANCE hInstance);
