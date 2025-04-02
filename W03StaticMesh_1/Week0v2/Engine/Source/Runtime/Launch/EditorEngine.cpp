@@ -244,7 +244,6 @@ UWorld* UEditorEngine::DuplicateWorldForPIE(UWorld* SourceWorld)
         EditorWorld = SourceWorld;
     }
 
-
     // 🌟 기존 월드 백업 (원본 보호)
     TSet<AActor*> BackupActors = SourceWorld->PersistentLevel->GetActors();
 
@@ -275,8 +274,6 @@ UWorld* UEditorEngine::DuplicateWorldForPIE(UWorld* SourceWorld)
             continue;
         }
 
-       
-
         // ✅ 새로운 액터 복제 (깊은 복사)
         AActor* ClonedActor = SourceActor->Duplicate();
         if (ClonedActor)
@@ -292,39 +289,26 @@ UWorld* UEditorEngine::DuplicateWorldForPIE(UWorld* SourceWorld)
     return PIEWorld;
 }
 
-void UEditorEngine::StartEditorMode()
-{
-    if (!EditorWorld)
-        return;  // 에디터 월드가 없으면 아무것도 하지 않음
-
-    // 🌟 PIE 월드 정리
-
-    GWorld->Release();
-
-    // 🌟 원래의 Editor World로 복원
-    GWorld = EditorWorld;
-
-    // 🌟 에디터 월드의 상태 복원 (필요한 경우)
-    // ...
-
-    // 백업 제거 (다음 PIE 세션을 위해)
-    EditorWorld = nullptr;
-}
-
 void UEditorEngine::StartPIEMode()
 {
-    GWorld = DuplicateWorldForPIE(GWorld);
+    if (GWorld && GWorld->WorldType == EWorldType::Editor) 
+    {
+        UWorld* EditorWorld = GWorld;
+        UWorld* PIEWorld = DuplicateWorldForPIE(EditorWorld);
+
+        GWorld = PIEWorld;
+    }
 }
 
 void UEditorEngine::EndPIEMode()
 {
-    /* if (GWorld && GWorld->IsPIEWorld())
+    if (GWorld && GWorld->WorldType == EWorldType::PIE)
     {
-        GWorld->CleanupWorld();
+        GWorld->Release();
         delete GWorld;
     }
 
-    GWorld = GEditor->GetEditorWorldContext().World();*/
+    GWorld = EditorWorld;
 }
 
 void UEditorEngine::WindowInit(HINSTANCE hInstance)

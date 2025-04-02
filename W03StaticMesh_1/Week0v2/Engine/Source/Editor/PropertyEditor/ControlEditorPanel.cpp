@@ -396,16 +396,16 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("\u25B6")) // ▶ (Black right-pointing triangle)
+    if (ImGui::Button("Start PIE"))
     {
         GEngineLoop.EditorEngine->StartPIEMode();
     }
 
 
     ImGui::SameLine();
-    if (ImGui::Button("\u25B4")) // ▶ (Black right-pointing triangle)
+    if (ImGui::Button("End PIE"))
     {
-        GEngineLoop.EditorEngine->StartEditorMode();
+        GEngineLoop.EditorEngine->EndPIEMode();
     }
    
 }
