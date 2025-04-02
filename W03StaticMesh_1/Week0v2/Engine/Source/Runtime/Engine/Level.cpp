@@ -27,6 +27,11 @@ void ULevel::Initialize()
     bIsVisible = true;
 }
 
+void ULevel::AddActor(AActor* InActor)
+{
+    ActorsArray.Add(InActor);
+}
+
 void ULevel::CreateLevelObjects()
 {  
 }

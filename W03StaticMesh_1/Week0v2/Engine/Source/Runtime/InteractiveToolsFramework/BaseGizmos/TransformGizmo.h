@@ -12,9 +12,9 @@ public:
 
     virtual void Tick(float DeltaTime) override;
 
-    TArray<UStaticMeshComponent*>& GetArrowArr() { return ArrowArr; }
-    TArray<UStaticMeshComponent*>& GetDiscArr() { return CircleArr; }
-    TArray<UStaticMeshComponent*>& GetScaleArr() { return RectangleArr; }
+    TArray<UStaticMeshComponent*> GetArrowArr() { return ArrowArr; }
+    TArray<UStaticMeshComponent*> GetDiscArr() { return CircleArr; }
+    TArray<UStaticMeshComponent*> GetScaleArr() { return RectangleArr; }
 
 private:
     TArray<UStaticMeshComponent*> ArrowArr;

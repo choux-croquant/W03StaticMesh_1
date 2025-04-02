@@ -1,6 +1,7 @@
 #include "EditorEngine.h"
 #include "ImGuiManager.h"
 #include "World.h"
+#include "Level.h"
 #include "Camera/CameraComponent.h"
 #include "PropertyEditor/ViewportTypePanel.h"
 #include "UnrealEd/EditorViewportClient.h"
@@ -226,6 +227,95 @@ void UEditorEngine::Input()
     {
         bTestInput = false;
     }
+}
+
+UWorld* UEditorEngine::DuplicateWorldForPIE(UWorld* SourceWorld)
+{
+    if (!SourceWorld)
+        return nullptr;
+
+
+    if (EditorWorld == nullptr)
+    {
+        EditorWorld = SourceWorld;
+    }
+
+
+    // 🌟 기존 월드 백업 (원본 보호)
+    TSet<AActor*> BackupActors = SourceWorld->PersistentLevel->GetActors();
+
+    // 🌟 새로운 월드 생성(PIE)
+    FWorldContext PIEWorldContext = FWorldContext(EWorldType::PIE);
+    UWorld* PIEWorld = PIEWorldContext.World;
+    WorldContexts.Add(PIEWorldContext);
+
+    // 🌟 새로운 월드에 복사할 액터 목록
+
+    for (AActor* SourceActor : BackupActors)
+    {
+        if (!SourceActor)
+            continue;
+
+        // ✅ 새로운 액터 복제 (깊은 복사)
+        AActor* ClonedActor = SourceActor->Duplicate();
+        if (ClonedActor)
+        {
+            PIEWorld->PersistentLevel->AddActor(ClonedActor);
+        }
+    }
+
+    // 🌟 복제된 액터들을 PIE 월드에 추가
+    PIEWorld->SetPickedActor(nullptr);
+    PIEWorld->Initialize(EWorldType::PIE);
+
+    return PIEWorld;
+}
+
+void UEditorEngine::StartEditorMode()
+{
+    if (!EditorWorld)
+        return;  // 에디터 월드가 없으면 아무것도 하지 않음
+
+    // 🌟 PIE 월드 정리
+    if (GWorld && GWorld != EditorWorld)
+    {
+        // PIE 월드의 모든 액터를 정리
+        TSet<AActor*> PIEActors = GWorld->PersistentLevel->GetActors();
+        for (AActor* Actor : PIEActors)
+        {
+            if (Actor)
+            {
+                Actor->Destroy();
+            }
+        }
+    }
+
+    GWorld->Release();
+
+    // 🌟 원래의 Editor World로 복원
+    GWorld = EditorWorld;
+
+    // 🌟 에디터 월드의 상태 복원 (필요한 경우)
+    // ...
+
+    // 백업 제거 (다음 PIE 세션을 위해)
+    EditorWorld = nullptr;
+}
+
+void UEditorEngine::StartPIEMode()
+{
+    GWorld = DuplicateWorldForPIE(GWorld);
+}
+
+void UEditorEngine::EndPIEMode()
+{
+    /* if (GWorld && GWorld->IsPIEWorld())
+    {
+        GWorld->CleanupWorld();
+        delete GWorld;
+    }
+
+    GWorld = GEditor->GetEditorWorldContext().World();*/
 }
 
 void UEditorEngine::WindowInit(HINSTANCE hInstance)

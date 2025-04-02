@@ -15,13 +15,6 @@ class AEditorPlayer;
 class USceneComponent;
 class UTransformGizmo;
 
-struct FWorldContext {
-    UWorld* World = nullptr;
-
-    FWorldContext(const EWorldType::Type InWorldType) {
-        World = UWorld::CreateWorld(InWorldType);
-    }
-};
 
 class UWorld final : public UObject
 {
@@ -42,7 +35,7 @@ public:
     void Tick(float DeltaTime);
     void Release();
 
-    void CreateEditorObjects();
+    void CreateEditorObjects(EWorldType::Type InWorldType);
     void ReleaseEditorObjects();
 
     // Level management methods
@@ -70,7 +63,7 @@ private:
     USceneComponent* pickingGizmo = nullptr;
     UCameraComponent* camera = nullptr;
     AEditorPlayer* EditorPlayer = nullptr;
-    UObject* worldGizmo = nullptr;
+    /*UObject* worldGizmo = nullptr;*/
     UTransformGizmo* LocalGizmo = nullptr;
 
     // Level related members
@@ -81,7 +74,7 @@ public:
     AActor* GetSelectedActor() const { return SelectedActor; }
     void SetPickedActor(AActor* InActor) { SelectedActor = InActor; }
 
-    UObject* GetWorldGizmo() const { return worldGizmo; }
+    /*UObject* GetWorldGizmo() const { return worldGizmo; }*/
     USceneComponent* GetPickingGizmo() const { return pickingGizmo; }
     void SetPickingGizmo(UObject* Object);
 
@@ -92,4 +85,12 @@ public:
     // Level related getters
     ULevel* GetCurrentLevel() const { return PersistentLevel; }
     const TArray<ULevel*>& GetLevels() const { return Levels; }
+};
+
+struct FWorldContext {
+    UWorld* World = nullptr;
+
+    FWorldContext(const EWorldType::Type InWorldType) {
+        World = UWorld::CreateWorld(InWorldType);
+    }
 };

@@ -31,6 +31,10 @@ public:
     virtual void Exit();
     virtual float GetAspectRatio(IDXGISwapChain* swapChain) const;
     virtual void Input();
+    UWorld* DuplicateWorldForPIE(UWorld* SourceWorld);
+    void StartEditorMode();
+    void StartPIEMode();
+    void EndPIEMode();
 
 private:
     void WindowInit(HINSTANCE hInstance);
@@ -48,7 +52,8 @@ public:
 private:
     UImGuiManager* UIMgr;
     TArray<FWorldContext> WorldContexts;
-    UWorld* GWorld;
+    UWorld* GWorld = nullptr;
+    UWorld* EditorWorld = nullptr; // Editor World 백업용
     SLevelEditor* LevelEditor;
     UnrealEd* UnrealEditor;
     bool bTestInput = false;

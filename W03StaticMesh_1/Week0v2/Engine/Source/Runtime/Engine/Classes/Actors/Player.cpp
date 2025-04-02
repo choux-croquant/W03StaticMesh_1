@@ -134,6 +134,32 @@ bool AEditorPlayer::PickGizmo(FVector& pickPosition)
     {
         if (cMode == CM_TRANSLATION)
         {
+            auto localGizmo = GetWorld()->GetLocalGizmo();
+            auto array = localGizmo->GetArrowArr();
+            for (auto iter : array) {
+                int maxIntersect = 0;
+                float minDistance = FLT_MAX;
+                float Distance = 0.0f;
+                int currentIntersectCount = 0;
+                if (!iter) continue;
+                if (RayIntersectsObject(pickPosition, iter, Distance, currentIntersectCount))
+                {
+                    if (Distance < minDistance)
+                    {
+                        minDistance = Distance;
+                        maxIntersect = currentIntersectCount;
+                        GetWorld()->SetPickingGizmo(iter);
+                        isPickedGizmo = true;
+                    }
+                    else if (abs(Distance - minDistance) < FLT_EPSILON && currentIntersectCount > maxIntersect)
+                    {
+                        maxIntersect = currentIntersectCount;
+                        GetWorld()->SetPickingGizmo(iter);
+                        isPickedGizmo = true;
+                    }
+                }
+            }
+
             for (auto iter : GetWorld()->GetLocalGizmo()->GetArrowArr())
             {
                 int maxIntersect = 0;

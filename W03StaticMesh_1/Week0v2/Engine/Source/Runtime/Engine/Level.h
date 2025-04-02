@@ -28,6 +28,8 @@ public:
 
     const TSet<AActor*>& GetActors() const { return ActorsArray; }
 
+    void AddActor(AActor* InActor);
+
     void CreateLevelObjects();
     void ReleaseLevelObjects();
 

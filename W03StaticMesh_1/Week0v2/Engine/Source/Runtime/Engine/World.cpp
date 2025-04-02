@@ -44,24 +44,6 @@ UWorld* UWorld::CreateWorld(
 
 void UWorld::Initialize(EWorldType::Type InWorldType)
 {
-    switch (InWorldType)
-    {
-    case EWorldType::Editor:
-        CreateEditorObjects();
-        break;
-    case EWorldType::Game:
-        // TODO : setting for game type world
-        break;
-    case EWorldType::PIE:
-        CreateEditorObjects();
-        break;
-    case EWorldType::EditorPreview:
-        // TODO : setting for editor preview type world
-        break;
-    default:
-        break;
-    }
-
     if (PersistentLevel == nullptr)
     {
         PersistentLevel = CreateNewLevel(DefaultMapName);
@@ -72,9 +54,27 @@ void UWorld::Initialize(EWorldType::Type InWorldType)
     {
         PersistentLevel->Initialize();
     }
+
+    switch (InWorldType)
+    {
+    case EWorldType::Editor:
+        CreateEditorObjects(InWorldType);
+        break;
+    case EWorldType::Game:
+        // TODO : setting for game type world
+        break;
+    case EWorldType::PIE:
+        CreateEditorObjects(InWorldType);
+        break;
+    case EWorldType::EditorPreview:
+        // TODO : setting for editor preview type world
+        break;
+    default:
+        break;
+    }
 }
 
-void UWorld::CreateEditorObjects()
+void UWorld::CreateEditorObjects(EWorldType::Type InWorldType)
 {
     if (EditorPlayer == nullptr)
     {
@@ -88,15 +88,15 @@ void UWorld::CreateEditorObjects()
         camera->SetRotation(FVector(0.0f, 45.0f, -135.0f));
     }
 
-    if (LocalGizmo == nullptr)
+    if (LocalGizmo == nullptr && InWorldType == EWorldType::Editor)
     {
-        LocalGizmo = FObjectFactory::ConstructObject<UTransformGizmo>();
+        LocalGizmo = SpawnActor<UTransformGizmo>();
     }
     
-    if (worldGizmo == nullptr)
+    /*if (worldGizmo == nullptr && InWorldType == EWorldType::Editor)
     {
         worldGizmo = FObjectFactory::ConstructObject<UObject>();
-    }
+    }*/
 }
 
 void UWorld::ReleaseEditorObjects()
@@ -107,11 +107,11 @@ void UWorld::ReleaseEditorObjects()
         LocalGizmo = nullptr;
     }
 
-    if (worldGizmo)
+    /*if (worldGizmo)
     {
         delete worldGizmo;
         worldGizmo = nullptr;
-    }
+    }*/
 
     if (camera)
     {
