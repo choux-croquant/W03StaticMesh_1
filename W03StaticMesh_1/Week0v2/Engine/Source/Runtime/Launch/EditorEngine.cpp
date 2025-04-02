@@ -123,7 +123,9 @@ int32 UEditorEngine::Init(HINSTANCE hInstance)
     LevelEditor = new SLevelEditor();
     LevelEditor->Initialize();
 
-    GWorld = UWorld::CreateWorld(EWorldType::Editor);
+    FWorldContext EditorWorldContext = FWorldContext(EWorldType::Editor);
+    GWorld = EditorWorldContext.World;
+    WorldContexts.Add(EditorWorldContext);
 
     return 0;
 }
@@ -183,8 +185,14 @@ void UEditorEngine::Tick(float DeltaSeconds)
 void UEditorEngine::Exit()
 {
     LevelEditor->Release();
-    GWorld->Release();
-    delete GWorld;
+
+    for (auto& WorldContext : WorldContexts) 
+    {
+        WorldContext.World->Release();
+        delete WorldContext.World;
+    }
+    WorldContexts.Empty();
+
     UIMgr->Shutdown();
     delete UIMgr;
     resourceMgr.Release(&renderer);
