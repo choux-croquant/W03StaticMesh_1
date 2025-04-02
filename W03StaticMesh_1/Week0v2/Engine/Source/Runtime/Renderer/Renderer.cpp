@@ -1074,6 +1074,11 @@ void FRenderer::RenderStaticMeshes(UWorld* World, std::shared_ptr<FEditorViewpor
 
 void FRenderer::RenderGizmos(const UWorld* World, const std::shared_ptr<FEditorViewportClient>& ActiveViewport)
 {
+    if (World->WorldType == EWorldType::PIE)
+        return;     // PIE 면 그리지 마쇼
+
+
+
     if (!World->GetSelectedActor())
     {
         return;

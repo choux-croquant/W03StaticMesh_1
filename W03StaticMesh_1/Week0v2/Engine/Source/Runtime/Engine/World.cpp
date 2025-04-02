@@ -152,10 +152,12 @@ void UWorld::Release()
 {
     if (PersistentLevel)
     {
+        Levels.Remove(PersistentLevel);
         PersistentLevel->Release();
         delete PersistentLevel;
         PersistentLevel = nullptr;
     }
+    
 
     for (ULevel* Level : Levels)
     {

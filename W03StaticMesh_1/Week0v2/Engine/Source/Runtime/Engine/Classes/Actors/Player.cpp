@@ -129,6 +129,9 @@ void AEditorPlayer::Input()
 
 bool AEditorPlayer::PickGizmo(FVector& pickPosition)
 {
+    if (GEngineLoop.EditorEngine->GetWorld()->WorldType == EWorldType::PIE)
+        return false;
+
     bool isPickedGizmo = false;
     if (GetWorld()->GetSelectedActor())
     {

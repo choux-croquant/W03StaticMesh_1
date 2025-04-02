@@ -10,6 +10,7 @@
 #include "slate/Widgets/Layout/SSplitter.h"
 #include "LevelEditor/SLevelEditor.h"
 #include "Engine/EngineTypes.h"
+#include "Engine/Source/Runtime/InteractiveToolsFramework/BaseGizmos/TransformGizmo.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -253,6 +254,11 @@ UWorld* UEditorEngine::DuplicateWorldForPIE(UWorld* SourceWorld)
 
     for (AActor* SourceActor : BackupActors)
     {
+        if (SourceActor->IsA<UTransformGizmo>()) 
+        {
+            continue;
+        }
+
         if (!SourceActor)
             continue;
 
@@ -277,18 +283,6 @@ void UEditorEngine::StartEditorMode()
         return;  // 에디터 월드가 없으면 아무것도 하지 않음
 
     // 🌟 PIE 월드 정리
-    if (GWorld && GWorld != EditorWorld)
-    {
-        // PIE 월드의 모든 액터를 정리
-        TSet<AActor*> PIEActors = GWorld->PersistentLevel->GetActors();
-        for (AActor* Actor : PIEActors)
-        {
-            if (Actor)
-            {
-                Actor->Destroy();
-            }
-        }
-    }
 
     GWorld->Release();
 

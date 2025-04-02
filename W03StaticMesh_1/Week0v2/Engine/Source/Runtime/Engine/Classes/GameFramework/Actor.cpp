@@ -89,6 +89,7 @@ void AActor::CopyPropertiesFrom(AActor* SourceActor)
     this->SetActorLocation(SourceActor->GetActorLocation());
     this->SetActorRotation(SourceActor->GetActorRotation());
     this->SetActorScale(SourceActor->GetActorScale());
+    this->SetActorLabel(SourceActor->GetActorLabel());
    
     // 🌟 기타 필요한 속성 추가 복사 가능
 }
