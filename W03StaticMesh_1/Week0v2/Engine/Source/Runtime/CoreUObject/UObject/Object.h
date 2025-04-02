@@ -22,6 +22,8 @@ public:
 
     static UClass* StaticClass();
 
+    virtual UObject* Duplicate();
+
 private:
     friend class FObjectFactory;
     friend class FSceneMgr;

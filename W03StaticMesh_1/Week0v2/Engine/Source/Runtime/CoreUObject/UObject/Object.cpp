@@ -10,6 +10,11 @@ UClass* UObject::StaticClass()
     return &ClassInfo;
 }
 
+UObject* UObject::Duplicate()
+{
+    return nullptr;
+}
+
 UObject::UObject()
     : UUID(0)
     // TODO: Object를 생성할 때 직접 설정하기

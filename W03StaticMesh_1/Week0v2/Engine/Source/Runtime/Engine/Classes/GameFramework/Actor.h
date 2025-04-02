@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Components/SceneComponent.h"
 #include "Container/Set.h"
 #include "Engine/EngineTypes.h"
@@ -35,6 +35,12 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 public:
+    virtual AActor* Duplicate() override;
+
+    void CopyPropertiesFrom(AActor* SourceActor);
+
+    void DuplicateSubObjects();
+
     /** 이 Actor를 제거합니다. */
     virtual bool Destroy();
 

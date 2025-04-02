@@ -3,6 +3,37 @@
 #include "GameFramework/Actor.h"
 
 
+UActorComponent* UActorComponent::Duplicate()
+{
+    // 🌟 현재 객체의 타입과 동일한 새 객체 생성
+    UActorComponent* NewComponent = FObjectFactory::ConstructObject<UActorComponent>();
+
+    // 🌟 속성 복사
+    NewComponent->CopyPropertiesFrom(this);
+
+
+
+    return NewComponent;
+}
+
+void UActorComponent::CopyPropertiesFrom(UActorComponent* SourceComponent)
+{
+    if (!SourceComponent)
+        return;
+
+    // 🌟 논리적 상태 복사
+    this->bIsActive = SourceComponent->bIsActive;
+    this->bHasBeenInitialized = SourceComponent->bHasBeenInitialized;
+    this->bHasBegunPlay = SourceComponent->bHasBegunPlay;
+    this->bIsBeingDestroyed = false;  // 새 복제본은 삭제 상태 아님
+
+    // 🌟 컴포넌트의 고유 데이터 복사
+    this->bAutoActive = SourceComponent->bAutoActive;
+
+    // ❌ Owner는 복사하지 않음 (새로운 Actor가 소유해야 함)
+    this->Owner = nullptr;
+}
+
 void UActorComponent::InitializeComponent()
 {
     assert(!bHasBeenInitialized);

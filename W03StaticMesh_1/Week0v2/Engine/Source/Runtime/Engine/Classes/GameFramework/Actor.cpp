@@ -1,4 +1,4 @@
-﻿#include "Actor.h"
+#include "Actor.h"
 
 #include "World.h"
 
@@ -42,6 +42,53 @@ void AActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
     UninitializeComponents();
 }
 
+AActor* AActor::Duplicate()
+{
+    // 🌟 같은 클래스 타입의 새로운 액터 생성
+    AActor* NewActor = new AActor();
+
+    // 🌟 기본 속성 복사 (위치, 회전, 스케일, 이름 등)
+    NewActor->CopyPropertiesFrom(this);
+
+    // 🌟 컴포넌트 및 자식 액터 깊은 복사
+    NewActor->DuplicateSubObjects();
+
+    return NewActor;
+}
+
+void AActor::CopyPropertiesFrom(AActor* SourceActor)
+{
+    if (!SourceActor)
+        return;
+
+    // 🌟 기본적인 속성 복사
+    this->GetActorLocation() = SourceActor->GetActorRotation();
+    this->GetActorRotation() = SourceActor->GetActorRotation();
+    this->GetActorScale() = SourceActor->GetActorScale();
+
+   
+    // 🌟 기타 필요한 속성 추가 복사 가능
+}
+
+void AActor::DuplicateSubObjects()
+{
+    // 🔥 1. 컴포넌트 깊은 복사
+    for (UActorComponent* component : GetComponents())
+    {
+        if (!component)
+            continue;
+
+        // 새로운 컴포넌트 복제
+        UActorComponent* newcomponent = component->Duplicate();
+        if (newcomponent)
+        {
+            OwnedComponents.Add(newcomponent);
+            newcomponent->Owner = this;
+        }
+    }
+}
+
+
 bool AActor::Destroy()
 {
     if (!IsActorBeingDestroyed())
@@ -55,6 +102,8 @@ bool AActor::Destroy()
 
     return IsActorBeingDestroyed();
 }
+
+
 
 void AActor::RemoveOwnedComponent(UActorComponent* Component)
 {

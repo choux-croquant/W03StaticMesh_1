@@ -146,6 +146,11 @@ bool UWorld::DestroyActor(AActor* ThisActor)
     return true;
 }
 
+void UWorld::SetActors(TSet<AActor*> NewActorArray)
+{
+    ActorsArray = NewActorArray;
+}
+
 void UWorld::SetPickingGizmo(UObject* Object)
 {
 	pickingGizmo = Cast<USceneComponent>(Object);

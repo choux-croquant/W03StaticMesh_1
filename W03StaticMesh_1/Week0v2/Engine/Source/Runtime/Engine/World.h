@@ -58,6 +58,7 @@ public:
     UObject* worldGizmo = nullptr;
 
     const TSet<AActor*>& GetActors() const { return ActorsArray; }
+    void SetActors(TSet<AActor*> NewActorArray);
 
     UTransformGizmo* LocalGizmo = nullptr;
     UCameraComponent* GetCamera() const { return camera; }
