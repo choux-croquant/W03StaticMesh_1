@@ -1,13 +1,14 @@
 #pragma once
-#include "UBillboardComponent.h"
+#include "PrimitiveComponent.h"
+#include "Engine/Texture.h"
 
-class UText : public UBillboardComponent
+class UTextRenderComponent : public UPrimitiveComponent
 {
-    DECLARE_CLASS(UText, UBillboardComponent)
+    DECLARE_CLASS(UTextRenderComponent, UPrimitiveComponent)
 
 public:
-    UText();
-    virtual ~UText() override;
+    UTextRenderComponent();
+    virtual ~UTextRenderComponent() override;
 
     virtual void InitializeComponent() override;
     virtual void TickComponent(float DeltaTime) override;
@@ -16,10 +17,20 @@ public:
     FWString GetText() { return text; }
     void SetRowColumnCount(int _cellsPerRow, int _cellsPerColumn);
     virtual int CheckRayIntersection(FVector& rayOrigin, FVector& rayDirection, float& pfNearHitDistance) override;
+    FMatrix CreateBillboardMatrix();
 
     ID3D11Buffer* vertexTextBuffer;
     TArray<FVertexTexture> vertexTextureArr;
     UINT numTextVertices;
+    void SetTexture(FWString _fileName);
+
+    ID3D11Buffer* vertexTextureBuffer;
+    ID3D11Buffer* indexTextureBuffer;
+    UINT numVertices;
+    UINT numIndices;
+    float finalIndexU = 0.0f;
+    float finalIndexV = 0.0f;
+    std::shared_ptr<FTexture> Texture;
 protected:
     FWString text;
 
@@ -37,5 +48,7 @@ protected:
     void setStartUV(wchar_t hangul, float& outStartU, float& outStartV);
     void CreateTextTextureVertexBuffer(const TArray<FVertexTexture>& _vertex, UINT byteWidth);
 
+
+    bool CheckPickingOnNDC(const TArray<FVector>& checkQuad, float& hitDistance);
     void TextMVPRendering();
 };

@@ -6,7 +6,8 @@
 #include "Components/LightComponent.h"
 #include "Components/SphereComp.h"
 #include "Components/UParticleSubUVComp.h"
-#include "Components/UText.h"
+#include "Components/TextRenderComponent.h"
+#include "Components/BillboardComponent.h"
 #include "Engine/FLoaderOBJ.h"
 #include "Engine/StaticMeshActor.h"
 #include "ImGUI/imgui_internal.h"
@@ -318,8 +319,8 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
         };
 
         static const Primitive primitives[] = {
-            { .label= "Cube",      .obj= OBJ_CUBE },
-            { .label= "Sphere",    .obj= OBJ_SPHERE },
+            { .label = "Actor",      .obj = OBJ_Actor},
+            { .label= "StaticMesh", .obj= OBJ_StaticMesh },
             { .label= "SpotLight", .obj= OBJ_SpotLight },
             { .label= "Particle",  .obj= OBJ_PARTICLE },
             { .label= "Text",      .obj= OBJ_Text }
@@ -334,17 +335,16 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                 AActor* SpawnedActor = nullptr;
                 switch (static_cast<OBJECTS>(primitive.obj))
                 {
-                case OBJ_SPHERE:
+                case OBJ_Actor:
                 {
                     SpawnedActor = World->SpawnActor<AActor>();
-                    SpawnedActor->SetActorLabel(TEXT("OBJ_SPHERE"));
-                    SpawnedActor->AddComponent<USphereComp>();
+                    SpawnedActor->AddComponent<USceneComponent>();
                     break;
                 }
-                case OBJ_CUBE:
+                case OBJ_StaticMesh:
                 {
                     AStaticMeshActor* TempActor = World->SpawnActor<AStaticMeshActor>();
-                    TempActor->SetActorLabel(TEXT("OBJ_CUBE"));
+                    TempActor->SetActorLabel(TEXT("OBJ_StaticMesh"));
                     UStaticMeshComponent* MeshComp = TempActor->GetStaticMeshComponent();
                     FManagerOBJ::CreateStaticMesh("Assets/helloBlender.obj");
                     MeshComp->SetStaticMesh(FManagerOBJ::GetStaticMesh(L"helloBlender.obj"));
@@ -372,7 +372,7 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                 {
                     SpawnedActor = World->SpawnActor<AActor>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_Text"));
-                    UText* TextComponent = SpawnedActor->AddComponent<UText>();
+                    UTextRenderComponent* TextComponent = SpawnedActor->AddComponent<UTextRenderComponent>();
                     TextComponent->SetTexture(L"Assets/Texture/font.png");
                     TextComponent->SetRowColumnCount(106, 106);
                     TextComponent->SetText(L"안녕하세요 Jungle 1");

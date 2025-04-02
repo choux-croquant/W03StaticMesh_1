@@ -6,9 +6,9 @@
 #include "BaseGizmos/GizmoBaseComponent.h"
 #include "Components/LightComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/UBillboardComponent.h"
+#include "Components/BillboardComponent.h"
 #include "Components/UParticleSubUVComp.h"
-#include "Components/UText.h"
+#include "Components/TextRenderComponent.h"
 #include "Components/Material/Material.h"
 #include "D3D11RHI/GraphicDevice.h"
 #include "Launch/EngineLoop.h"
@@ -984,6 +984,10 @@ void FRenderer::PrepareRender()
             {
                 GizmoObjs.Add(pGizmoComp);
             }
+            if (UTextRenderComponent* pTextComp = Cast<UTextRenderComponent>(iterComp))
+            {
+                TextObjs.Add(pTextComp);
+            }
             if (UBillboardComponent* pBillboardComp = Cast<UBillboardComponent>(iterComp))
             {
                 BillboardObjs.Add(pBillboardComp);
@@ -1017,6 +1021,7 @@ void FRenderer::Render(UWorld* World, std::shared_ptr<FEditorViewportClient> Act
     RenderGizmos(World, ActiveViewport);
     if (ActiveViewport->GetShowFlag() & static_cast<uint64>(EEngineShowFlags::SF_BillboardText))
         RenderBillboards(World, ActiveViewport);
+    RenderText(World, ActiveViewport);
     RenderLight(World, ActiveViewport);
     
     ClearRenderArr();
@@ -1159,27 +1164,35 @@ void FRenderer::RenderBillboards(UWorld* World, std::shared_ptr<FEditorViewportC
         else
             UpdateConstant(MVP, NormalMatrix, UUIDColor, false);
 
-        if (UParticleSubUVComp* SubUVParticle = Cast<UParticleSubUVComp>(BillboardComp))
-        {
-            RenderTexturePrimitive(
-                SubUVParticle->vertexSubUVBuffer, SubUVParticle->numTextVertices,
-                SubUVParticle->indexTextureBuffer, SubUVParticle->numIndices, SubUVParticle->Texture->TextureSRV, SubUVParticle->Texture->SamplerState
-            );
-        }
-        else if (UText* Text = Cast<UText>(BillboardComp))
-        {
-            UEditorEngine::renderer.RenderTextPrimitive(
-                Text->vertexTextBuffer, Text->numTextVertices,
-                Text->Texture->TextureSRV, Text->Texture->SamplerState
-            );
-        }
+
+        RenderTexturePrimitive(
+            BillboardComp->vertexTextureBuffer, BillboardComp->numVertices,
+            BillboardComp->indexTextureBuffer, BillboardComp->numIndices, BillboardComp->Texture->TextureSRV, BillboardComp->Texture->SamplerState
+        );
+    }
+}
+
+void FRenderer::RenderText(UWorld* World, std::shared_ptr<FEditorViewportClient> ActiveViewport)
+{
+    for (auto TextComp : TextObjs)
+    {
+        UpdateSubUVConstant(TextComp->finalIndexU, TextComp->finalIndexV);
+
+        FMatrix Model = TextComp->CreateBillboardMatrix();
+
+        // 최종 MVP 행렬
+        FMatrix MVP = Model * ActiveViewport->GetViewMatrix() * ActiveViewport->GetProjectionMatrix();
+        FMatrix NormalMatrix = FMatrix::Transpose(FMatrix::Inverse(Model));
+        FVector4 UUIDColor = TextComp->EncodeUUID() / 255.0f;
+        if (TextComp == World->GetPickingGizmo())
+            UpdateConstant(MVP, NormalMatrix, UUIDColor, true);
         else
-        {
-            RenderTexturePrimitive(
-                BillboardComp->vertexTextureBuffer, BillboardComp->numVertices,
-                BillboardComp->indexTextureBuffer, BillboardComp->numIndices, BillboardComp->Texture->TextureSRV, BillboardComp->Texture->SamplerState
-            );
-        }
+            UpdateConstant(MVP, NormalMatrix, UUIDColor, false);
+
+        RenderTextPrimitive(
+            TextComp->vertexTextBuffer, TextComp->numTextVertices,
+            TextComp->Texture->TextureSRV, TextComp->Texture->SamplerState
+        );
     }
     PrepareShader();
 }

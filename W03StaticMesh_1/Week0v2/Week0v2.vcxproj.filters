@@ -243,10 +243,10 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\SphereComp.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClInclude>
-    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UBillboardComponent.cpp">
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.cpp">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClCompile>
-    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UBillboardComponent.h">
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClInclude>
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UParticleSubUVComp.cpp">
@@ -255,10 +255,10 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UParticleSubUVComp.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClInclude>
-    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UText.cpp">
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\TextRenderComponent.cpp">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClCompile>
-    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UText.h">
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\TextRenderComponent.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClInclude>
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UTextUUID.cpp">
