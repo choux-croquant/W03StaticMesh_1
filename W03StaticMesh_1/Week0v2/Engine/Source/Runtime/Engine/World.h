@@ -20,6 +20,7 @@ class UWorld : public UObject
 
 public:
     UWorld() = default;
+    EWorldType::Type WorldType;
 
     void Initialize();
     void CreateBaseObject();
