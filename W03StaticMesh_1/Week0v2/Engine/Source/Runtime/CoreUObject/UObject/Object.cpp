@@ -13,8 +13,16 @@ UClass* UObject::StaticClass()
 
 UObject* UObject::Duplicate()
 {
+    // 자식에서 알아서
     return nullptr;
 }
+
+void UObject::CopyPropertiesFrom(UObject* SourceComponent)
+{
+    // 자식에서 알아서
+}
+
+
 
 UObject::UObject()
     : UUID(0)

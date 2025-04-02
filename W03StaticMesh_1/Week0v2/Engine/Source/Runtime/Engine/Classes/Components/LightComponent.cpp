@@ -2,6 +2,8 @@
 #include "UBillboardComponent.h"
 #include "Math/JungleMath.h"
 #include "UnrealEd/PrimitiveBatch.h"
+#include "UObject/ObjectFactory.h"
+#include "Engine/Source/Runtime/CoreUObject/UObject/Casts.h"
 
 ULightComponentBase::ULightComponentBase()
 {
@@ -13,6 +15,30 @@ ULightComponentBase::ULightComponentBase()
 ULightComponentBase::~ULightComponentBase()
 {
     delete texture2D;
+}
+ULightComponentBase* ULightComponentBase::Duplicate()
+{
+    // 🌟 현재 객체의 타입과 동일한 새 객체 생성
+    ULightComponentBase* NewComponent = FObjectFactory::ConstructObject<ULightComponentBase>();
+
+    // 🌟 속성 복사
+    NewComponent->CopyPropertiesFrom(this);
+
+    return NewComponent;
+}
+void ULightComponentBase::CopyPropertiesFrom(UObject* InSourceComponent)
+{
+    ULightComponentBase* SourceLight = Cast<ULightComponentBase>(InSourceComponent);
+    if (!SourceLight)
+        return;
+
+    // 🌟 논리적 상태 복사
+    this->color  = SourceLight->color;
+    this->radius = SourceLight->radius;
+    this->AABB   = SourceLight->AABB;
+
+    // 🌟 컴포넌트의 고유 데이터 복사
+    this->bAutoActive = SourceLight->bAutoActive;
 }
 void ULightComponentBase::SetColor(FVector4 newColor)
 {

@@ -17,7 +17,7 @@ public:
 
     UActorComponent* Duplicate() override;
 
-    void CopyPropertiesFrom(UActorComponent* SourceComponent);
+    void CopyPropertiesFrom(UObject* InSourceComponent) override;
 
     /** AActor가 World에 Spawn되어 BeginPlay이전에 호출됩니다. */
     virtual void InitializeComponent();

@@ -69,6 +69,35 @@ void USceneComponent::AddScale(FVector _added)
 
 }
 
+USceneComponent* USceneComponent::Duplicate()
+{
+    // 🌟 현재 객체의 타입과 동일한 새 객체 생성
+    USceneComponent* NewComponent = FObjectFactory::ConstructObject<USceneComponent>();
+
+    // 🌟 속성 복사
+    NewComponent->CopyPropertiesFrom(this);
+
+    return NewComponent;
+}
+
+void USceneComponent::CopyPropertiesFrom(UObject* InSourceComponent)
+{
+    USceneComponent* SourceComponent = Cast<USceneComponent>(InSourceComponent);
+    if (!SourceComponent)
+        return;
+
+    // 🌟 논리적 상태 복사
+    this->RelativeLocation = SourceComponent->RelativeLocation;
+    this->RelativeRotation = SourceComponent->RelativeRotation;
+    this->QuatRotation = SourceComponent->QuatRotation;
+    this->RelativeScale3D = SourceComponent->RelativeScale3D;
+    this->AttachParent = SourceComponent->AttachParent;
+    this->AttachChildren = SourceComponent->AttachChildren;
+
+    // 🌟 컴포넌트의 고유 데이터 복사
+    this->bAutoActive = SourceComponent->bAutoActive;
+}
+
 FVector USceneComponent::GetWorldRotation()
 {
 	if (AttachParent)

@@ -47,13 +47,14 @@ AActor* AActor::Duplicate()
     // 🌟 같은 클래스 타입의 새로운 액터 생성
     AActor* NewActor = new AActor();
 
+    NewActor->RootComponent = this->RootComponent;
+
     // 🌟 기본 속성 복사 (위치, 회전, 스케일, 이름 등)
     NewActor->CopyPropertiesFrom(this);
 
     // 🌟 컴포넌트 및 자식 액터 깊은 복사
     NewActor->DuplicateSubObjects(this);
 
-    NewActor->RootComponent = this->RootComponent;
 
     // 🌟 액터 파괴 플래그 초기화
     NewActor->bActorIsBeingDestroyed = false;

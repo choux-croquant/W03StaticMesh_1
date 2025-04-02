@@ -14,8 +14,10 @@ UActorComponent* UActorComponent::Duplicate()
     return NewComponent;
 }
 
-void UActorComponent::CopyPropertiesFrom(UActorComponent* SourceComponent)
+
+void UActorComponent::CopyPropertiesFrom(UObject* InSourceComponent)
 {
+    UActorComponent* SourceComponent = Cast<UActorComponent>(InSourceComponent);
     if (!SourceComponent)
         return;
 

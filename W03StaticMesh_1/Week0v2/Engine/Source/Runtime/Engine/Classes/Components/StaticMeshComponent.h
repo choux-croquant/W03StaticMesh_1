@@ -11,6 +11,10 @@ public:
 
     PROPERTY(int, selectedSubMeshIndex);
 
+    UStaticMeshComponent* Duplicate() override;
+
+    void CopyPropertiesFrom(UObject* InSourceComponent) override;
+
     virtual uint32 GetNumMaterials() const override;
     virtual UMaterial* GetMaterial(uint32 ElementIndex) const override;
     virtual uint32 GetMaterialIndex(FName MaterialSlotName) const override;

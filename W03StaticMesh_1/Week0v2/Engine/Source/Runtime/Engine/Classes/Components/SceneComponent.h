@@ -31,6 +31,10 @@ protected:
     TArray<USceneComponent*> AttachChildren;
 
 public:
+    USceneComponent* Duplicate() override;
+
+    void CopyPropertiesFrom(UObject* InSourceComponent) override;
+
     virtual FVector GetWorldRotation();
     FVector GetWorldScale();
     FVector GetWorldLocation();

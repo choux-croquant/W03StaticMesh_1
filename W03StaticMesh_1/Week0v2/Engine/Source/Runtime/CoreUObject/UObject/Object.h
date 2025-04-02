@@ -24,6 +24,7 @@ public:
     static UClass* StaticClass();
 
     virtual UObject* Duplicate();
+    virtual void CopyPropertiesFrom(UObject* SourceComponent);
 
 private:
     friend class FObjectFactory;
