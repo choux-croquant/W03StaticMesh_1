@@ -92,7 +92,32 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
         
         if (ImGui::MenuItem("New Scene"))
         {
-            // TODO: New Scene
+            UWorld* World = GEngineLoop.EditorEngine->GetWorld();
+            if (World)
+            {
+                // Remove all existing actors
+                TSet<AActor*> ActorsToRemove;
+                for (AActor* Actor : World->PersistentLevel->GetActors())
+                {
+                    ActorsToRemove.Add(Actor);
+                }
+                for (AActor* Actor : ActorsToRemove)
+                {
+                    World->DestroyActor(Actor);
+                }
+
+                // Reset camera to default position
+                auto ActiveViewportClient = GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient();
+                if (ActiveViewportClient)
+                {
+                    ActiveViewportClient->ViewTransformPerspective.ViewLocation = FVector(0, 0, 0);
+                    ActiveViewportClient->ViewTransformPerspective.ViewRotation = FVector(0, 0, 0);
+                    ActiveViewportClient->ViewFOV = 90.0f;
+                    ActiveViewportClient->nearPlane = 0.1f;
+                    ActiveViewportClient->farPlane = 10000.0f;
+                }
+            }
+            tinyfd_messageBox("Success", "새로운 씬이 생성되었습니다.", "ok", "info", 1);
         }
 
         if (ImGui::MenuItem("Load Scene"))
@@ -119,8 +144,8 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
         
         if (ImGui::MenuItem("Save Scene"))
         {
-            char const * lFilterPatterns[1]={"*.scene"};
-            const char* FileName =  tinyfd_saveFileDialog("Save Scene File", "", 1, lFilterPatterns,"Scene(.scene) file");
+            char const* lFilterPatterns[1] = { "*.scene" };
+            const char* FileName = tinyfd_saveFileDialog("Save Scene File", "", 1, lFilterPatterns, "Scene(.scene) file");
 
             if (FileName == nullptr)
             {
@@ -128,9 +153,48 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
                 return;
             }
 
-            // TODO: Save Scene
+            UWorld* World = GEngineLoop.EditorEngine->GetWorld();
+            if (World)
+            {
+                SceneData sceneData;
+                sceneData.Version = 1;
+                sceneData.NextUUID = 1;
 
-            tinyfd_messageBox("알림", "저장되었습니다.", "ok", "info", 1);
+                // Populate sceneData.Primitives
+                for (AActor* Actor : World->PersistentLevel->GetActors())
+                {
+                    USceneComponent* RootComponent = Actor->GetRootComponent();
+                    if (RootComponent)
+                    {
+                        sceneData.Primitives[Actor->GetUUID()] = RootComponent;
+                    }
+                }
+
+                // Add camera data
+                /*auto ActiveViewportClient = GEngineLoop.GetLevelEditor()->GetActiveViewportClient();
+                if (ActiveViewportClient)
+                {
+                    UCameraComponent* Obj = FObjectFactory::ConstructObject<UCameraComponent>();
+                    UCameraComponent* CameraComponent = Cast<UCameraComponent>(Obj);
+
+                    CameraComponent->SetLocation(ActiveViewportClient->ViewTransformPerspective.ViewLocation);
+                    CameraComponent->SetRotation(ActiveViewportClient->ViewTransformPerspective.ViewRotation);
+                    CameraComponent->SetFOV(ActiveViewportClient->ViewFOV);
+                    CameraComponent->SetNearClip(ActiveViewportClient->nearPlane);
+                    CameraComponent->SetFarClip(ActiveViewportClient->farPlane);
+                    sceneData.Cameras[0] = CameraComponent;
+                }*/
+
+                // Save scene to file
+                if (FSceneMgr::SaveSceneToFile(FString(FileName), sceneData))
+                {
+                    tinyfd_messageBox("Success", "저장되었습니다.", "ok", "info", 1);
+                }
+                else
+                {
+                    tinyfd_messageBox("Error", "저장에 실패했습니다.", "ok", "error", 1);
+                }
+            }
         }
 
         ImGui::Separator();
