@@ -94,6 +94,7 @@ uint32 UEditorEngine::TotalAllocationBytes = 0;
 uint32 UEditorEngine::TotalAllocationCount = 0;
 
 
+
 UEditorEngine* UEditorEngine::CreateEngine()
 {
     UEditorEngine* NewEngine = FObjectFactory::ConstructObject<UEditorEngine>();
@@ -123,7 +124,6 @@ int32 UEditorEngine::Init(HINSTANCE hInstance)
     LevelEditor->Initialize();
 
     GWorld = UWorld::CreateWorld(EWorldType::Editor);
-    GWorld->Initialize();
 
     return 0;
 }

@@ -113,8 +113,6 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
                 ImGui::End();
                 return;
             }
-
-            // TODO: Load Scene
         }
 
         ImGui::Separator();

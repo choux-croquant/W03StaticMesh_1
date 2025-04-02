@@ -23,14 +23,13 @@ UWorld* UWorld::CreateWorld(
     switch (InWorldType)
     {
     case EWorldType::Editor:
-        NewWorld->CreateEditorObjects();
+        // TODO : settig for editor type world
         break;
     case EWorldType::Game:
         // TODO : setting for game type world
         break;
     case EWorldType::PIE:
         // TODO : setting for PIC type world
-        NewWorld->CreateEditorObjects();
         break;
     case EWorldType::EditorPreview:
         // TODO : setting for editor preview type world
@@ -39,12 +38,29 @@ UWorld* UWorld::CreateWorld(
         break;
     }
 
+    NewWorld->Initialize(InWorldType);
     return NewWorld;
 }
 
-void UWorld::Initialize()
+void UWorld::Initialize(EWorldType::Type InWorldType)
 {
-    CreateEditorObjects();
+    switch (InWorldType)
+    {
+    case EWorldType::Editor:
+        CreateEditorObjects();
+        break;
+    case EWorldType::Game:
+        // TODO : setting for game type world
+        break;
+    case EWorldType::PIE:
+        CreateEditorObjects();
+        break;
+    case EWorldType::EditorPreview:
+        // TODO : setting for editor preview type world
+        break;
+    default:
+        break;
+    }
 
     if (PersistentLevel == nullptr)
     {
