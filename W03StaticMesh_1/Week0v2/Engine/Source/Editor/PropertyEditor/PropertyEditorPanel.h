@@ -1,5 +1,7 @@
 #pragma once
 #include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
+#include "Components/BillboardComponent.h"
 #include "UnrealEd/EditorPanel.h"
 
 class UStaticMeshComponent;
@@ -22,6 +24,8 @@ private:
     void RenderForMaterial(UStaticMeshComponent* StaticMeshComp);
     void RenderMaterialView(UMaterial* Material);
     void RenderCreateMaterialView();
+    void RenderForSprite(UBillboardComponent* BillboardComp);
+    void RenderComponentHierarchy(USceneComponent* Component, USceneComponent*& SelectedComponent);
 private:
     float Width = 0, Height = 0;
     FVector Location = FVector(0, 0, 0);
@@ -34,4 +38,5 @@ private:
     UStaticMeshComponent* SelectedStaticMeshComp = nullptr;
     FObjMaterialInfo tempMaterialInfo;
     bool IsCreateMaterial;
+    USceneComponent* SelectedComponent = nullptr;
 };

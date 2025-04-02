@@ -46,6 +46,7 @@ public:
     void SetScale(FVector _newScale) { RelativeScale3D = _newScale; }
     void SetupAttachment(USceneComponent* InParent);
 
+    TArray<USceneComponent*> GetAttachChildren() { return AttachChildren; }
 private:
     class UTextUUID* uuidText = nullptr;
 

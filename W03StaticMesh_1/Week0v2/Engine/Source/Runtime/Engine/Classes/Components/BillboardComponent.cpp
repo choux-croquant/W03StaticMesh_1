@@ -1,4 +1,4 @@
-#include "UBillboardComponent.h"
+#include "BillboardComponent.h"
 #include "Actors/Player.h"
 #include "QuadTexture.h"
 #include "Define.h"
@@ -63,12 +63,6 @@ void UBillboardComponent::SetTexture(FWString _fileName)
 	Texture = UEditorEngine::resourceMgr.GetTexture(_fileName);
 }
 
-void UBillboardComponent::SetUUIDParent(USceneComponent* _parent)
-{
-	m_parent = _parent;
-}
-
-
 FMatrix UBillboardComponent::CreateBillboardMatrix()
 {
 	FMatrix CameraView = GetEngine().EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetViewMatrix();
@@ -89,9 +83,8 @@ FMatrix UBillboardComponent::CreateBillboardMatrix()
 	CameraView.M[2][2] = -CameraView.M[2][2];
 	FMatrix LookAtCamera = FMatrix::Transpose(CameraView);
 	
-	FVector worldLocation = RelativeLocation;
-	if (m_parent) worldLocation = RelativeLocation + m_parent->GetWorldLocation();
-	FVector worldScale = RelativeScale3D;
+	FVector worldLocation = GetWorldLocation();
+	FVector worldScale = GetWorldScale();
 	FMatrix S = FMatrix::CreateScale(worldScale.x, worldScale.y, worldScale.z);
 	FMatrix R = LookAtCamera;
 	FMatrix T = FMatrix::CreateTranslationMatrix(worldLocation);
@@ -141,39 +134,39 @@ bool UBillboardComponent::CheckPickingOnNDC(const TArray<FVector>& checkQuad, fl
 	FMatrix P = projectionMatrix;
 	FMatrix MVP = M * V * P;
 
-	float minX = FLT_MAX;
-	float maxX = FLT_MIN;
-	float minY = FLT_MAX;
-	float maxY = FLT_MIN;
-	float avgZ = 0.0f;
-	for (int i = 0; i < checkQuad.Num(); i++)
-	{
-		FVector4 v = FVector4(checkQuad[i].x, checkQuad[i].y, checkQuad[i].z, 1.0f);
-		FVector4 clipPos = FMatrix::TransformVector(v, MVP);
-		
-		if (clipPos.a != 0)	clipPos = clipPos/clipPos.a;
+    float minX = FLT_MAX;
+    float maxX = FLT_MIN;
+    float minY = FLT_MAX;
+    float maxY = FLT_MIN;
+    float avgZ = 0.0f;
+    for (int i = 0; i < checkQuad.Num(); i++)
+    {
+        FVector4 v = FVector4(checkQuad[i].x, checkQuad[i].y, checkQuad[i].z, 1.0f);
+        FVector4 clipPos = FMatrix::TransformVector(v, MVP);
 
-		minX = FMath::Min(minX, clipPos.x);
-		maxX = FMath::Max(maxX, clipPos.x);
-		minY = FMath::Min(minY, clipPos.y);
-		maxY = FMath::Max(maxY, clipPos.y);
-		avgZ += clipPos.z;
-	}
+        if (clipPos.a != 0)	clipPos = clipPos / clipPos.a;
 
-	avgZ /= checkQuad.Num();
+        minX = FMath::Min(minX, clipPos.x);
+        maxX = FMath::Max(maxX, clipPos.x);
+        minY = FMath::Min(minY, clipPos.y);
+        maxY = FMath::Max(maxY, clipPos.y);
+        avgZ += clipPos.z;
+    }
 
-	if (pickPosition.x >= minX && pickPosition.x <= maxX &&
-		pickPosition.y >= minY && pickPosition.y <= maxY)
-	{
-		float A = P.M[2][2];  // Projection Matrix의 A값 (Z 변환 계수)
-		float B = P.M[3][2];  // Projection Matrix의 B값 (Z 변환 계수)
+    avgZ /= checkQuad.Num();
 
-		float z_view_pick = (pickPosition.z - B) / A; // 마우스 클릭 View 공간 Z
-		float z_view_billboard = (avgZ - B) / A; // Billboard View 공간 Z
+    if (pickPosition.x >= minX && pickPosition.x <= maxX &&
+        pickPosition.y >= minY && pickPosition.y <= maxY)
+    {
+        float A = P.M[2][2];  // Projection Matrix의 A값 (Z 변환 계수)
+        float B = P.M[3][2];  // Projection Matrix의 B값 (Z 변환 계수)
 
-		hitDistance = 1000.0f;
-		result = true;
-	}
+        float z_view_pick = (pickPosition.z - B) / A; // 마우스 클릭 View 공간 Z
+        float z_view_billboard = (avgZ - B) / A; // Billboard View 공간 Z
 
-	return result;
+        hitDistance = 1000.0f;
+        result = true;
+    }
+
+    return result;
 }

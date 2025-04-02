@@ -19,6 +19,7 @@ class FEditorViewportClient;
 class UBillboardComponent;
 class UStaticMeshComponent;
 class UGizmoBaseComponent;
+class UTextRenderComponent;
 class FRenderer 
 {
 
@@ -143,11 +144,13 @@ public: // line shader
     void RenderGizmos(const UWorld* World, const std::shared_ptr<FEditorViewportClient>& ActiveViewport);
     void RenderLight(UWorld* World, std::shared_ptr<FEditorViewportClient> ActiveViewport);
     void RenderBillboards(UWorld* World,std::shared_ptr<FEditorViewportClient> ActiveViewport);
+    void RenderText(UWorld* World, std::shared_ptr<FEditorViewportClient> ActiveViewport);
 private:
     TArray<UStaticMeshComponent*> StaticMeshObjs;
     TArray<UGizmoBaseComponent*> GizmoObjs;
     TArray<UBillboardComponent*> BillboardObjs;
     TArray<ULightComponentBase*> LightObjs;
+    TArray<UTextRenderComponent*> TextObjs;
 
 public:
     ID3D11VertexShader* VertexLineShader = nullptr;

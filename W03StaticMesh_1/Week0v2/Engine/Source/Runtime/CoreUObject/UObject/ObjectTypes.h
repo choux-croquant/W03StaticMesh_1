@@ -3,8 +3,8 @@
 
 enum OBJECTS
 {
-	OBJ_SPHERE,
-	OBJ_CUBE,
+    OBJ_Actor,
+	OBJ_StaticMesh,
 	OBJ_SpotLight,
 	OBJ_PARTICLE,
 	OBJ_Text,

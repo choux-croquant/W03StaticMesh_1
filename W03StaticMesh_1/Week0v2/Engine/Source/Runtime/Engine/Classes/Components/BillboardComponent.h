@@ -1,6 +1,5 @@
 #pragma once
 #include "PrimitiveComponent.h"
-#include "UTexture.h"
 #include "Engine/Classes/Engine/Texture.h"
 
 class UBillboardComponent : public UPrimitiveComponent
@@ -19,7 +18,6 @@ public:
     ) override;
 
     void SetTexture(FWString _fileName);
-    void SetUUIDParent(USceneComponent* _parent);
     FMatrix CreateBillboardMatrix();
 
     ID3D11Buffer* vertexTextureBuffer;
@@ -29,14 +27,11 @@ public:
     float finalIndexU = 0.0f;
     float finalIndexV = 0.0f;
     std::shared_ptr<FTexture> Texture;
+    void CreateQuadTextureVertexBuffer();
 protected:
 
-
-
     USceneComponent* m_parent = nullptr;
-
     bool CheckPickingOnNDC(const TArray<FVector>& checkQuad, float& hitDistance);
 
 private:
-    void CreateQuadTextureVertexBuffer();
 };

@@ -226,9 +226,9 @@
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.cpp" />
     <ClCompile Include="Engine\Source\Editor\UnrealEd\SceneMgr.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\SphereComp.cpp" />
-    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UBillboardComponent.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UParticleSubUVComp.cpp" />
-    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UText.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\TextRenderComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UTextUUID.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\World.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\QuadTexture.cpp" />
@@ -333,13 +333,13 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\MeshComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Mesh\StaticMesh.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\StaticMeshComponent.h" />
-    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UBillboardComponent.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.h" />
     <ClCompile Include="Engine\Source\Runtime\CoreUObject\UObject\UClass.cpp" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\UObject\ObjectMacros.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\UObject\ObjectTypes.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\UObject\UClass.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UParticleSubUVComp.h" />
-    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UText.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\TextRenderComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UTextUUID.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\World.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Level.h" />
