@@ -5,7 +5,6 @@
 #include "Components/LightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
-#include "Components/CubeComp.h"
 #include "Components/BillBoardComponent.h"
 #include "Engine/FLoaderOBJ.h"
 #include "Math/MathUtility.h"
@@ -44,13 +43,19 @@ void PropertyEditorPanel::Render()
     AEditorPlayer* player = GEngineLoop.EditorEngine->GetWorld()->GetEditorPlayer();
     AActor* PickedActor = GEngineLoop.EditorEngine->GetWorld()->GetSelectedActor();
 
+
     if (!PickedActor)
     {
         ImGui::End();
         return;
     }
+    if (SelectedActor != PickedActor)
+    {
+        SelectedActor = PickedActor;
+        SelectedComponent = SelectedActor->GetRootComponent();
+    }
 
-    const char* componentTypes[] = { "Cube", "Billboard", "PointLight", "StaticMesh", "TextRender" };
+    const char* componentTypes[] = { "Billboard", "PointLight", "StaticMesh", "TextRender" };
     static int selectedType = 0;
 
     ImGui::BeginGroup();
@@ -62,10 +67,7 @@ void PropertyEditorPanel::Render()
         USceneComponent* NewComponent = nullptr;
         switch (selectedType)
         {
-        case 0: // Cube
-            NewComponent = FObjectFactory::ConstructObject<UCubeComp>();
-            break;
-        case 1: // Billboard
+        case 0: // Billboard
         {
             NewComponent = FObjectFactory::ConstructObject<UBillboardComponent>();
             UBillboardComponent* BillboardComponent = Cast<UBillboardComponent>(NewComponent);
@@ -73,10 +75,10 @@ void PropertyEditorPanel::Render()
             BillboardComponent->CreateQuadTextureVertexBuffer();
             break;
         }
-        case 2: // PointLight
+        case 1: // PointLight
             NewComponent = FObjectFactory::ConstructObject<ULightComponentBase>();
             break;
-        case 3: // StaticMesh
+        case 2: // StaticMesh
         {
             NewComponent = FObjectFactory::ConstructObject<UStaticMeshComponent>();
             UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(NewComponent);
@@ -84,7 +86,7 @@ void PropertyEditorPanel::Render()
             StaticMeshComponent->SetStaticMesh(FManagerOBJ::GetStaticMesh(L"helloBlender.obj"));
             break;
         }
-        case 4: // TextRender
+        case 3: // TextRender
         {
             NewComponent = FObjectFactory::ConstructObject<UTextRenderComponent>();
             UTextRenderComponent* TextComponent = Cast<UTextRenderComponent>(NewComponent);
@@ -124,6 +126,7 @@ void PropertyEditorPanel::Render()
                 {
                     if (ImGui::IsItemClicked())
                     {
+                        GEngineLoop.EditorEngine->GetWorld()->SetPickedActor(RootComp->GetOwner());
                         SelectedComponent = SceneComp;
                     }
                     if (ImGui::IsItemHovered())

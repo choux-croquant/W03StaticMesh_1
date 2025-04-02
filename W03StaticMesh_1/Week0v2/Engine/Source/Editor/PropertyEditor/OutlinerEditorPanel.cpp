@@ -3,7 +3,7 @@
 #include "EditorEngine.h"
 #include "World.h"
 #include "GameFramework/Actor.h"
-
+#include "InteractiveToolsFramework/BaseGizmos/TransformGizmo.h"
 
 void OutlinerEditorPanel::Render()
 {
@@ -39,6 +39,8 @@ void OutlinerEditorPanel::Render()
         UWorld* World = GEngineLoop.EditorEngine->GetWorld();
         for (AActor* Actor : World->PersistentLevel->GetActors())
         {
+            if (Actor->IsA<UTransformGizmo>())
+                continue;
             if (ImGui::Selectable(*Actor->GetActorLabel(), World->GetSelectedActor() == Actor))
             {
                 World->SetPickedActor(Actor);

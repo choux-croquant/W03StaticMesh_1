@@ -39,4 +39,5 @@ private:
     FObjMaterialInfo tempMaterialInfo;
     bool IsCreateMaterial;
     USceneComponent* SelectedComponent = nullptr;
+    AActor* SelectedActor = nullptr;
 };
