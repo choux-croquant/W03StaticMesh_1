@@ -13,6 +13,7 @@
 #include "Engine/Source/Runtime/InteractiveToolsFramework/BaseGizmos/TransformGizmo.h"
 #include "Engine/Source/Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Engine/Source/Runtime/Engine/Classes/Engine/StaticMeshActor.h"
+#include "Engine/Source/Runtime/CoreUObject/UObject/UClass.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -264,7 +265,7 @@ UWorld* UEditorEngine::DuplicateWorldForPIE(UWorld* SourceWorld)
             continue;
         }
 
-        if (SourceActor->IsA<UStaticMeshComponent>()) {
+        if (SourceActor->GetClass()->IsChildOf<AStaticMeshActor>()) {
             AStaticMeshActor* SourceStaticActor = Cast<AStaticMeshActor>(SourceActor);
             AStaticMeshActor* ClonedActor = SourceStaticActor->Duplicate();
             if (ClonedActor)
