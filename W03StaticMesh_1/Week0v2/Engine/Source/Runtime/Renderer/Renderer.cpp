@@ -1018,6 +1018,16 @@ void FRenderer::PrepareRender()
             ProcessComponentTree(RootComp, ProcessComponentTree);
         }
     }
+
+    for (const auto iter : GEngineLoop.EditorEngine->GetWorld()->PersistentLevel->GetActors())
+    {
+        for (const auto iterComp : iter->GetComponents()) {
+            if(UGizmoBaseComponent * pGizmoComp = Cast<UGizmoBaseComponent>(iterComp))
+            {
+                GizmoObjs.Add(pGizmoComp);
+            }
+        }
+    }
 }
 
 void FRenderer::ClearRenderArr()
