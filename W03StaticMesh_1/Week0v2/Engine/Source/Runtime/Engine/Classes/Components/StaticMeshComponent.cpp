@@ -34,8 +34,6 @@ void UStaticMeshComponent::CopyPropertiesFrom(UObject* InSourceComponent)
 
     // 🌟 컴포넌트의 고유 데이터 복사
     this->bAutoActive = SourceComponent->bAutoActive;
-
-    
 }
 
 uint32 UStaticMeshComponent::GetNumMaterials() const
