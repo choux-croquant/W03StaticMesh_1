@@ -39,7 +39,7 @@ public:
 
     void CopyPropertiesFrom(AActor* SourceActor);
 
-    void DuplicateSubObjects();
+    void DuplicateSubObjects(AActor* SourceActor);
 
     /** 이 Actor를 제거합니다. */
     virtual bool Destroy();

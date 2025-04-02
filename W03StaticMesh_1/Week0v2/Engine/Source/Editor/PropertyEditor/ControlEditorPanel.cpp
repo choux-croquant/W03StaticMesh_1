@@ -328,6 +328,13 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
     {
         GEngineLoop.StartPIEMode();
     }
+
+
+    ImGui::SameLine();
+    if (ImGui::Button("\u25B4")) // ▶ (Black right-pointing triangle)
+    {
+        GEngineLoop.StartEditorMode();
+    }
    
 }
 

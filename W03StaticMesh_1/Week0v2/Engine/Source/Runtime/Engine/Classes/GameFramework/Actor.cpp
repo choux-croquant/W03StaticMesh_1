@@ -51,29 +51,20 @@ AActor* AActor::Duplicate()
     NewActor->CopyPropertiesFrom(this);
 
     // 🌟 컴포넌트 및 자식 액터 깊은 복사
-    NewActor->DuplicateSubObjects();
+    NewActor->DuplicateSubObjects(this);
+
+    NewActor->RootComponent = this->RootComponent;
+
+    // 🌟 액터 파괴 플래그 초기화
+    NewActor->bActorIsBeingDestroyed = false;
 
     return NewActor;
 }
 
-void AActor::CopyPropertiesFrom(AActor* SourceActor)
-{
-    if (!SourceActor)
-        return;
-
-    // 🌟 기본적인 속성 복사
-    this->GetActorLocation() = SourceActor->GetActorRotation();
-    this->GetActorRotation() = SourceActor->GetActorRotation();
-    this->GetActorScale() = SourceActor->GetActorScale();
-
-   
-    // 🌟 기타 필요한 속성 추가 복사 가능
-}
-
-void AActor::DuplicateSubObjects()
+void AActor::DuplicateSubObjects(AActor* SourceActor)
 {
     // 🔥 1. 컴포넌트 깊은 복사
-    for (UActorComponent* component : GetComponents())
+    for (UActorComponent* component : SourceActor-> GetComponents())
     {
         if (!component)
             continue;
@@ -87,6 +78,20 @@ void AActor::DuplicateSubObjects()
         }
     }
 }
+
+void AActor::CopyPropertiesFrom(AActor* SourceActor)
+{
+    if (!SourceActor)
+        return;
+
+    // 🌟 기본적인 속성 복사
+    this->SetActorLocation(SourceActor->GetActorLocation());
+    this->SetActorRotation(SourceActor->GetActorRotation());
+    this->SetActorScale(SourceActor->GetActorScale());
+   
+    // 🌟 기타 필요한 속성 추가 복사 가능
+}
+
 
 
 bool AActor::Destroy()

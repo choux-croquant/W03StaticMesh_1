@@ -249,6 +249,13 @@ UWorld* FEngineLoop::DuplicateWorldForPIE(UWorld* SourceWorld)
     if (!SourceWorld)
         return nullptr;
 
+
+    if (!EditorWorld)
+    {
+        EditorWorld = SourceWorld;
+    }
+
+
     // 🌟 기존 월드 백업 (원본 보호)
     TSet<AActor*> BackupActors = SourceWorld->GetActors();
 
@@ -272,16 +279,46 @@ UWorld* FEngineLoop::DuplicateWorldForPIE(UWorld* SourceWorld)
     }
 
     // 🌟 복제된 액터들을 PIE 월드에 추가
+    PIEWorld->SetPickedActor(nullptr);
     PIEWorld->SetActors(ClonedActors);
     PIEWorld->Initialize();
 
     return PIEWorld;
 }
 
-void FEngineLoop::StartPIEMode()
+void FEngineLoop::StartEditorMode()
 {
-    
+    if (!EditorWorld)
+        return;  // 에디터 월드가 없으면 아무것도 하지 않음
+
+    // 🌟 PIE 월드 정리
+    if (GWorld && GWorld != EditorWorld)
+    {
+        // PIE 월드의 모든 액터를 정리
+        TSet<AActor*> PIEActors = GWorld->GetActors();
+        for (AActor* Actor : PIEActors)
+        {
+            if (Actor)
+            {
+                Actor->Destroy();
+            }
+        }
+    }
+
+    // 🌟 원래의 Editor World로 복원
+    GWorld = EditorWorld;
+
+    // 🌟 에디터 월드의 상태 복원 (필요한 경우)
+    // ...
+
+    // 백업 제거 (다음 PIE 세션을 위해)
+    EditorWorld = nullptr;
+}
+
+void FEngineLoop::StartPIEMode()
+{   
     GWorld = DuplicateWorldForPIE(GWorld);
+
 }
 
 void FEngineLoop::EndPIEMode()
