@@ -4,6 +4,8 @@
 #include "UnrealEd/EditorViewportClient.h"
 #include "LevelEditor/SLevelEditor.h"
 
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
+
 UCameraComponent::UCameraComponent()
 {
 }
@@ -89,23 +91,23 @@ void UCameraComponent::Input()
 
 void UCameraComponent::MoveForward(float _Value)
 {
-	RelativeLocation = RelativeLocation + GetForwardVector() * GetEngine().GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar() * _Value;
+	RelativeLocation = RelativeLocation + GetForwardVector() * GetEngine().EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar() * _Value;
 }
 
 void UCameraComponent::MoveRight(float _Value)
 {
 	//FVector newRight = FVector(GetRightVector().x, GetRightVector().y, 0.0f);
-	RelativeLocation = RelativeLocation + GetRightVector() * GetEngine().GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar() * _Value;
+	RelativeLocation = RelativeLocation + GetRightVector() * GetEngine().EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar() * _Value;
 }
 
 void UCameraComponent::MoveUp(float _Value)
 {
-	RelativeLocation.z += _Value * GetEngine().GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar();
+	RelativeLocation.z += _Value * GetEngine().EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar();
 }
 
 void UCameraComponent::RotateYaw(float _Value)
 {
-	RelativeRotation.z += _Value * GetEngine().GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar();
+	RelativeRotation.z += _Value * GetEngine().EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar();
 }
 
 void UCameraComponent::RotatePitch(float _Value)

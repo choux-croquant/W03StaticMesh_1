@@ -18,6 +18,7 @@
 #include "Runtime/Engine/Classes/Engine/FLoaderOBJ.h"
 #include "UnrealEd/EditorViewportClient.h"
 #include "LevelEditor/SLevelEditor.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
 
 using json = nlohmann::json;
 
@@ -131,7 +132,7 @@ void FSceneMgr::SpawnActorFromSceneData(const FString& jsonStr)
     try {
         json j = json::parse(*jsonStr);
 
-        UWorld* World = GEngineLoop.GetWorld();
+        UWorld* World = GEngineLoop.EditorEngine->GetWorld();
 
         // Primitives 처리 (C++14 스타일)
         auto primitives = j["Primitives"];
@@ -283,7 +284,7 @@ void FSceneMgr::SpawnActorFromSceneData(const FString& jsonStr)
         // 이후 카메라 여러개가 되는 거 할거면 코드 개선해야 하옵니다
 
         const json& cameraJson = j["PerspectiveCamera"];
-        auto ActiveViewportClient = GEngineLoop.GetLevelEditor()->GetActiveViewportClient();
+        auto ActiveViewportClient = GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient();
         if (cameraJson.contains("Location")) {
             const auto& loc = cameraJson["Location"];
             ActiveViewportClient->ViewTransformPerspective.ViewLocation.x = loc[0];
