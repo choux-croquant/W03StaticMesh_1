@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Components/SceneComponent.h"
 #include "Container/Set.h"
 #include "Engine/EngineTypes.h"
@@ -73,6 +73,9 @@ public:
     AActor* GetOwner() const { return Owner; }
     void SetOwner(AActor* NewOwner) { Owner = NewOwner; }
 
+    UWorld* GetOwingWorld() const { return OwingWorld; }
+    void SetWorld(UWorld* World) { OwingWorld = World; }
+
 public:
     FVector GetActorLocation() const { return RootComponent ? RootComponent->GetWorldLocation() : FVector::ZeroVector; }
     FVector GetActorRotation() const { return RootComponent ? RootComponent->GetWorldRotation() : FVector::ZeroVector; }
@@ -92,6 +95,7 @@ protected:
 private:
     /** 이 Actor를 소유하고 있는 다른 Actor의 정보 */
     AActor* Owner = nullptr;
+    UWorld* OwingWorld = nullptr;
 
     /** 본인이 소유하고 있는 컴포넌트들의 정보 */
     TSet<UActorComponent*> OwnedComponents;

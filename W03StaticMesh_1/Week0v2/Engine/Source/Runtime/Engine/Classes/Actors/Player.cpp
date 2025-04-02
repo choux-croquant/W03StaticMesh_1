@@ -1,4 +1,4 @@
-﻿#include "Player.h"
+#include "Player.h"
 
 #include "UnrealClient.h"
 #include "World.h"
@@ -134,7 +134,7 @@ bool AEditorPlayer::PickGizmo(FVector& pickPosition)
     {
         if (cMode == CM_TRANSLATION)
         {
-            for (auto iter : GetWorld()->LocalGizmo->GetArrowArr())
+            for (auto iter : GetWorld()->GetLocalGizmo()->GetArrowArr())
             {
                 int maxIntersect = 0;
                 float minDistance = FLT_MAX;
@@ -161,7 +161,7 @@ bool AEditorPlayer::PickGizmo(FVector& pickPosition)
         }
         else if (cMode == CM_ROTATION)
         {
-            for (auto iter : GetWorld()->LocalGizmo->GetDiscArr())
+            for (auto iter : GetWorld()->GetLocalGizmo()->GetDiscArr())
             {
                 int maxIntersect = 0;
                 float minDistance = FLT_MAX;
@@ -189,7 +189,7 @@ bool AEditorPlayer::PickGizmo(FVector& pickPosition)
         }
         else if (cMode == CM_SCALE)
         {
-            for (auto iter : GetWorld()->LocalGizmo->GetScaleArr())
+            for (auto iter : GetWorld()->GetLocalGizmo()->GetScaleArr())
             {
                 int maxIntersect = 0;
                 float minDistance = FLT_MAX;
