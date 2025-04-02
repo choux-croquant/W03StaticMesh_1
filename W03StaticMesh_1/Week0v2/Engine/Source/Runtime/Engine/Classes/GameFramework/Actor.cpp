@@ -45,7 +45,7 @@ void AActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 AActor* AActor::Duplicate()
 {
     // 🌟 같은 클래스 타입의 새로운 액터 생성
-    AActor* NewActor = new AActor();
+    AActor* NewActor = FObjectFactory::ConstructObject<AActor>();
 
     NewActor->RootComponent = this->RootComponent;
 
