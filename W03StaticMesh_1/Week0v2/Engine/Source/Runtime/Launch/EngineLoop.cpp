@@ -8,7 +8,7 @@
 #include "UnrealClient.h"
 #include "slate/Widgets/Layout/SSplitter.h"
 #include "LevelEditor/SLevelEditor.h"
-
+#include "GameFramework/Actor.h" 
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -249,40 +249,38 @@ UWorld* FEngineLoop::DuplicateWorldForPIE(UWorld* SourceWorld)
     if (!SourceWorld)
         return nullptr;
 
-    //EditorWorld = SourceWorld;
+    // 🌟 기존 월드 백업 (원본 보호)
+    TSet<AActor*> BackupActors = SourceWorld->GetActors();
 
-    TSet<AActor*> SourceActors = SourceWorld->GetActors();
-    TSet<AActor*> ClonedActors;
-    TSet<AActor*> BackupActors;
-
-    for (AActor* SourceActor : SourceWorld->GetActors())
-    {
-        if (!SourceActor)
-            continue;
-         
-        BackupActors.Add(SourceActor);     
-    }
-
-    for (AActor* SourceActor : SourceActors)
-    {
-        if (!SourceActor)
-            continue;
-
-       ClonedActors.Add(SourceActor);
-    }
-
-    // 새 PIE 월드 생성
+    // 🌟 새로운 월드 생성
     UWorld* PIEWorld = new UWorld();
+
+    // 🌟 새로운 월드에 복사할 액터 목록
+    TSet<AActor*> ClonedActors;
+
+    for (AActor* SourceActor : BackupActors)
+    {
+        if (!SourceActor) 
+            continue;
+
+        // ✅ 새로운 액터 복제 (깊은 복사)
+        AActor* ClonedActor = SourceActor->Duplicate();
+        if (ClonedActor)
+        {
+            ClonedActors.Add(ClonedActor);
+        }
+    }
+
+    // 🌟 복제된 액터들을 PIE 월드에 추가
     PIEWorld->SetActors(ClonedActors);
     PIEWorld->Initialize();
-
-    //TODO Acotr, Component도 복제 필요
 
     return PIEWorld;
 }
 
 void FEngineLoop::StartPIEMode()
 {
+    
     GWorld = DuplicateWorldForPIE(GWorld);
 }
 

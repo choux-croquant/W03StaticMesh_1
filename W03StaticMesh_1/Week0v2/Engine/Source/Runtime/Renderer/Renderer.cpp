@@ -1176,6 +1176,11 @@ void FRenderer::RenderBillboards(UWorld* World, std::shared_ptr<FEditorViewportC
     PrepareShader();
 }
 
+TArray<UStaticMeshComponent*> FRenderer::GetStaticMeshObjs()
+{
+    return StaticMeshObjs;
+}
+
 void FRenderer::RenderLight(UWorld* World, std::shared_ptr<FEditorViewportClient> ActiveViewport)
 {
     for (auto Light : LightObjs)

@@ -11,8 +11,6 @@ UActorComponent* UActorComponent::Duplicate()
     // 🌟 속성 복사
     NewComponent->CopyPropertiesFrom(this);
 
-
-
     return NewComponent;
 }
 
