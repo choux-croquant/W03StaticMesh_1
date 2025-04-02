@@ -125,7 +125,6 @@ int32 FEngineLoop::Init(HINSTANCE hInstance)
     LevelEditor->Initialize();
 
     GWorld = UWorld::CreateWorld(EWorldType::Editor);
-    GWorld->Initialize();
 
     return 0;
 }

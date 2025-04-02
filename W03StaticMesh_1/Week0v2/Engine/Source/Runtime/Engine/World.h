@@ -30,7 +30,7 @@ public:
         const EWorldType::Type InWorldType
     );
 
-    void Initialize();
+    void Initialize(EWorldType::Type InWorldType);
     void Tick(float DeltaTime);
     void Release();
 
