@@ -280,9 +280,10 @@ void PropertyEditorPanel::Render()
                 if (ImGui::InputText("##Text", buf, 256, ImGuiInputTextFlags_EnterReturnsTrue))
                 {
                     textOBj->ClearText();
-                    int wlen = MultiByteToWideChar(CP_UTF8, 0, buf, -1, nullptr, 0);
+                    int utf8Len = static_cast<int>(strlen(buf));
+                    int wlen = MultiByteToWideChar(CP_UTF8, 0, buf, utf8Len, nullptr, 0);
                     FWString newWText(wlen, L'\0');
-                    MultiByteToWideChar(CP_UTF8, 0, buf, -1, newWText.data(), wlen);
+                    MultiByteToWideChar(CP_UTF8, 0, buf, utf8Len, newWText.data(), wlen);
                     textOBj->SetText(newWText);
                 }
                 ImGui::PopItemFlag();
