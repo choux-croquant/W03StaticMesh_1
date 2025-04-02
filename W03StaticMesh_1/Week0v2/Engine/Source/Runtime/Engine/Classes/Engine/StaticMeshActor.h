@@ -18,7 +18,7 @@ public:
             UStaticMeshComponent* NewMeshComp = NewActor->AddComponent<UStaticMeshComponent>();
             NewMeshComp->CopyPropertiesFrom(StaticMeshComponent);
             NewActor->StaticMeshComponent = NewMeshComp;
-            NewActor->RootComponent = NewMeshComp;
+            //NewActor->RootComponent = NewMeshComp;
 
             NewMeshComp->SetStaticMesh(StaticMeshComponent->GetStaticMesh());
         }

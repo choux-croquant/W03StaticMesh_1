@@ -23,17 +23,17 @@ void UStaticMeshComponent::CopyPropertiesFrom(UObject* InSourceComponent)
     if (!SourceComponent)
         return;
 
-    this->RelativeLocation = SourceComponent->RelativeLocation;
-    this->RelativeRotation = SourceComponent->RelativeRotation;
-    this->RelativeScale3D = SourceComponent->RelativeScale3D;
+    //this->RelativeLocation = SourceComponent->RelativeLocation;
+    //this->RelativeRotation = SourceComponent->RelativeRotation;
+    //this->RelativeScale3D = SourceComponent->RelativeScale3D;
 
-    this->staticMesh = SourceComponent->staticMesh;
-    this->selectedSubMeshIndex = SourceComponent->selectedSubMeshIndex;
-    this->OverrideMaterials = SourceComponent->OverrideMaterials;
-    this->AABB = SourceComponent->AABB;
+    //this->staticMesh = SourceComponent->staticMesh;
+    //this->selectedSubMeshIndex = SourceComponent->selectedSubMeshIndex;
+    //this->OverrideMaterials = SourceComponent->OverrideMaterials;
+    //this->AABB = SourceComponent->AABB;
 
     // 🌟 컴포넌트의 고유 데이터 복사
-    this->bAutoActive = SourceComponent->bAutoActive;
+    //this->bAutoActive = SourceComponent->bAutoActive;
 }
 
 uint32 UStaticMeshComponent::GetNumMaterials() const
