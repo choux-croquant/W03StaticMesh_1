@@ -244,6 +244,21 @@ void FEngineLoop::Input()
     }
 }
 
+UWorld* FEngineLoop::DuplicateWorldForPIE(UWorld* SourceWorld)
+{
+    if (!SourceWorld)
+        return nullptr;
+
+    EditorWorld = SourceWorld;
+
+    SourceWorld = new UWorld();
+    SourceWorld->Initialize();
+
+    //TODO Acotr, Component도 복제 필요
+
+    return SourceWorld;
+}
+
 void FEngineLoop::Exit()
 {
     LevelEditor->Release();
