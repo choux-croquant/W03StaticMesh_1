@@ -10,31 +10,57 @@ class ULevel : public UObject
 
 public:
     ULevel() = default;
+    virtual ~ULevel();
 
     FString LevelName;
     UWorld* OwningWorld;
 
     void Initialize();
+    void BeginPlay();
     void Tick(float DeltaTime);
+    void EndPlay();
     void Release();
 
-    // 액터 관리 함수들
     template <typename T>
         requires std::derived_from<T, AActor>
     T* SpawnActor();
-
     bool DestroyActor(AActor* ThisActor);
 
     const TSet<AActor*>& GetActors() const { return ActorsArray; }
 
-    void CreateBaseObject();
-    void ReleaseBaseObject();
+    void CreateLevelObjects();
+    void ReleaseLevelObjects();
+
+    // Get level states
+    bool IsLevelLoaded() const { return bIsLevelLoaded; }
+    bool IsLevelLoading() const { return bIsLevelLoading; }
+
+    // Level visibility
+    void SetVisible(bool bInIsVisible);
+    bool IsVisible() const { return bIsVisible; }
 
 private:
-    // 액터 관리 변수들
+    // Actors memeber
     TSet<AActor*> ActorsArray;
     TArray<AActor*> PendingBeginPlayActors;
 
-    // 옥트리 관련 변수들
-    TArray<UObject*> OctreeObjects;
+    // Flags for level state
+    uint8 bIsVisible : 1;
+    uint8 bIsLevelLoaded : 1;
+    uint8 bIsLevelLoading : 1;
 };
+
+template <typename T>
+    requires std::derived_from<T, AActor>
+T* ULevel::SpawnActor()
+{
+    T* Actor = FObjectFactory::ConstructObject<T>();
+
+    Actor->SetWorld(OwningWorld);
+
+    // Add actor to level
+    ActorsArray.Add(Actor);
+    PendingBeginPlayActors.Add(Actor);
+
+    return Actor;
+}

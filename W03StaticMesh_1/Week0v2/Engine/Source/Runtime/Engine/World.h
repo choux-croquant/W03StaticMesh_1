@@ -4,6 +4,7 @@
 #include "UObject/ObjectFactory.h"
 #include "UObject/ObjectMacros.h"
 #include "Engine/EngineTypes.h"
+#include "Engine/Level.h"
 
 class FObjectFactory;
 class AActor;
@@ -14,80 +15,73 @@ class AEditorPlayer;
 class USceneComponent;
 class UTransformGizmo;
 
-
-class UWorld : public UObject
+class UWorld final : public UObject
 {
     DECLARE_CLASS(UWorld, UObject)
 
 public:
     UWorld() = default;
+
+    // Level that currently activated
+    ULevel* PersistentLevel;
     EWorldType::Type WorldType;
 
+    static UWorld* CreateWorld(
+        const EWorldType::Type InWorldType
+    );
+
     void Initialize();
-    void CreateBaseObject();
-    void ReleaseBaseObject();
     void Tick(float DeltaTime);
     void Release();
 
-    /**
-     * World에 Actor를 Spawn합니다.
-     * @tparam T AActor를 상속받은 클래스
-     * @return Spawn된 Actor의 포인터
-     */
+    void CreateEditorObjects();
+    void ReleaseEditorObjects();
+
+    // Level management methods
+    ULevel* CreateNewLevel(const FString& LevelName = TEXT("Default"));
+    bool LoadLevel(const FString& LevelPath);
+    bool UnloadLevel(ULevel* Level);
+    void SetCurrentLevel(ULevel* Level);
+
+    // Move spawnactor logic to level class
     template <typename T>
         requires std::derived_from<T, AActor>
-    T* SpawnActor();
+    T* SpawnActor()
+    {
+        return PersistentLevel ? PersistentLevel->SpawnActor<T>() : nullptr;
+    }
 
-    /** World에 존재하는 Actor를 제거합니다. */
-    bool DestroyActor(AActor* ThisActor);
+    bool DestroyActor(AActor* ThisActor)
+    {
+        return PersistentLevel ? PersistentLevel->DestroyActor(ThisActor) : false;
+    }
 
 private:
-    const FString defaultMapName = "Default";
-
-    /** World에서 관리되는 모든 Actor의 목록 */
-    TSet<AActor*> ActorsArray;
-
-    /** Actor가 Spawn되었고, 아직 BeginPlay가 호출되지 않은 Actor들 */
-    TArray<AActor*> PendingBeginPlayActors;
-
+    // Editor related members
     AActor* SelectedActor = nullptr;
-
     USceneComponent* pickingGizmo = nullptr;
     UCameraComponent* camera = nullptr;
     AEditorPlayer* EditorPlayer = nullptr;
+    UObject* worldGizmo = nullptr;
+    UTransformGizmo* LocalGizmo = nullptr;
+
+    // Level related members
+    TArray<ULevel*> Levels;
+    const FString DefaultMapName = TEXT("Default");
 
 public:
-    UObject* worldGizmo = nullptr;
-
-    const TSet<AActor*>& GetActors() const { return ActorsArray; }
-
-    UTransformGizmo* LocalGizmo = nullptr;
-    UCameraComponent* GetCamera() const { return camera; }
-    AEditorPlayer* GetEditorPlayer() const { return EditorPlayer; }
-
-
-    // EditorManager 같은데로 보내기
     AActor* GetSelectedActor() const { return SelectedActor; }
-    void SetPickedActor(AActor* InActor)
-    {
-        SelectedActor = InActor;
-    }
+    void SetPickedActor(AActor* InActor) { SelectedActor = InActor; }
 
     UObject* GetWorldGizmo() const { return worldGizmo; }
     USceneComponent* GetPickingGizmo() const { return pickingGizmo; }
     void SetPickingGizmo(UObject* Object);
+
+    UCameraComponent* GetCamera() const { return camera; }
+    AEditorPlayer* GetEditorPlayer() const { return EditorPlayer; }
+    UTransformGizmo* GetLocalGizmo() const { return LocalGizmo; }
+
+    // Level related getters
+    ULevel* GetCurrentLevel() const { return PersistentLevel; }
+    const TArray<ULevel*>& GetLevels() const { return Levels; }
 };
-
-
-template <typename T>
-    requires std::derived_from<T, AActor>
-T* UWorld::SpawnActor()
-{
-    T* Actor = FObjectFactory::ConstructObject<T>();
-    // TODO: 일단 AddComponent에서 Component마다 초기화
-    // 추후에 RegisterComponent() 만들어지면 주석 해제
-    // Actor->InitializeComponents();
-    ActorsArray.Add(Actor);
-    PendingBeginPlayActors.Add(Actor);
-    return Actor;
-}

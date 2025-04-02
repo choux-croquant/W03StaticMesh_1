@@ -8,7 +8,7 @@
 #include "UnrealClient.h"
 #include "slate/Widgets/Layout/SSplitter.h"
 #include "LevelEditor/SLevelEditor.h"
-
+#include "Engine/EngineTypes.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -124,7 +124,7 @@ int32 FEngineLoop::Init(HINSTANCE hInstance)
     LevelEditor = new SLevelEditor();
     LevelEditor->Initialize();
 
-    GWorld = new UWorld;
+    GWorld = UWorld::CreateWorld(EWorldType::Editor);
     GWorld->Initialize();
 
     return 0;

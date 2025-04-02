@@ -11,28 +11,28 @@
 #include "Components/SkySphereComponent.h"
 #include "Classes/Components/StaticMeshComponent.h"
 
+ULevel::~ULevel()
+{
+}
+
 void ULevel::Initialize()
 {
-    // TODO: Load Scene
-    CreateBaseObject();
-    //SpawnObject(OBJ_CUBE);
-    //FManagerOBJ::CreateStaticMesh("Assets/Dodge/Dodge.obj");
+    bIsLevelLoading = true;
 
-    //FManagerOBJ::CreateStaticMesh("Assets/SkySphere.obj");
-    //AActor* SpawnedActor = SpawnActor<AActor>();
-    //USkySphereComponent* skySphere = SpawnedActor->AddComponent<USkySphereComponent>();
-    //skySphere->SetStaticMesh(FManagerOBJ::GetStaticMesh(L"SkySphere.obj"));
-    //skySphere->GetStaticMesh()->GetMaterials()[0]->Material->SetDiffuse(FVector((float)32/255, (float)171/255, (float)191/255));
+    CreateLevelObjects();
+
+    // Initialize end
+    bIsLevelLoaded = true;
+    bIsLevelLoading = false;
+    bIsVisible = true;
 }
 
-void ULevel::CreateBaseObject()
-{
-
+void ULevel::CreateLevelObjects()
+{  
 }
 
-void ULevel::ReleaseBaseObject()
+void ULevel::ReleaseLevelObjects()
 {
-
 }
 
 void ULevel::Tick(float DeltaTime)
@@ -43,6 +43,7 @@ void ULevel::Tick(float DeltaTime)
     }
     PendingBeginPlayActors.Empty();
 
+    // Update Actors tick
     for (AActor* Actor : ActorsArray)
     {
         Actor->Tick(DeltaTime);
@@ -51,9 +52,10 @@ void ULevel::Tick(float DeltaTime)
 
 void ULevel::Release()
 {
+    EndPlay();
+
     for (AActor* Actor : ActorsArray)
     {
-        Actor->EndPlay(EEndPlayReason::WorldTransition);
         TSet<UActorComponent*> Components = Actor->GetComponents();
         for (UActorComponent* Component : Components)
         {
@@ -63,14 +65,44 @@ void ULevel::Release()
     }
     ActorsArray.Empty();
 
-    ReleaseBaseObject();
-
+    ReleaseLevelObjects();
     GUObjectArray.ProcessPendingDestroyObjects();
+    bIsLevelLoaded = false;
+}
+
+void ULevel::SetVisible(bool bInIsVisible)
+{
+    if (bIsVisible != bInIsVisible)
+    {
+        bIsVisible = bInIsVisible;
+
+        // Set actor visibility
+        for (AActor* Actor : ActorsArray)
+        {
+            // TODO : add actor visibility flags
+        }
+    }
+}
+
+void ULevel::BeginPlay()
+{
+    for (AActor* Actor : ActorsArray)
+    {
+        Actor->BeginPlay();
+    }
+}
+
+void ULevel::EndPlay()
+{
+    for (AActor* Actor : ActorsArray)
+    {
+        Actor->EndPlay(EEndPlayReason::WorldTransition);
+    }
 }
 
 bool ULevel::DestroyActor(AActor* ThisActor)
 {
-    if (ThisActor->GetWorld() == nullptr)
+    if (ThisActor->GetWorld() == nullptr || ThisActor->GetWorld() != OwningWorld)
     {
         return false;
     }
@@ -80,7 +112,6 @@ bool ULevel::DestroyActor(AActor* ThisActor)
         return true;
     }
 
-    // 액터의 Destroyed 호출
     ThisActor->Destroyed();
 
     if (ThisActor->GetOwner())
@@ -94,23 +125,9 @@ bool ULevel::DestroyActor(AActor* ThisActor)
         Component->DestroyComponent();
     }
 
-    // World에서 제거
+    // Remove actor from level
     ActorsArray.Remove(ThisActor);
 
-    // 제거 대기열에 추가
     GUObjectArray.MarkRemoveObject(ThisActor);
     return true;
-}
-
-template <typename T>
-    requires std::derived_from<T, AActor>
-T* ULevel::SpawnActor()
-{
-    T* Actor = FObjectFactory::ConstructObject<T>();
-    // TODO: 일단 AddComponent에서 Component마다 초기화
-    // 추후에 RegisterComponent() 만들어지면 주석 해제
-    // Actor->InitializeComponents();
-    ActorsArray.Add(Actor);
-    PendingBeginPlayActors.Add(Actor);
-    return Actor;
 }
