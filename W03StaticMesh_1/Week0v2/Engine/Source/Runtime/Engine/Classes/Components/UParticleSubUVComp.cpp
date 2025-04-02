@@ -4,6 +4,8 @@
 #include "World.h"
 #include "LevelEditor/SLevelEditor.h"
 
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
+
 
 UParticleSubUVComp::UParticleSubUVComp()
 {
@@ -23,8 +25,8 @@ UParticleSubUVComp::~UParticleSubUVComp()
 void UParticleSubUVComp::InitializeComponent()
 {
 	Super::InitializeComponent();
-	FEngineLoop::renderer.UpdateSubUVConstant(0, 0);
-	FEngineLoop::renderer.PrepareSubUVConstant();
+    UEditorEngine::renderer.UpdateSubUVConstant(0, 0);
+    UEditorEngine::renderer.PrepareSubUVConstant();
 }
 
 void UParticleSubUVComp::TickComponent(float DeltaTime)
@@ -111,6 +113,6 @@ void UParticleSubUVComp::CreateSubUVVertexBuffer()
 	vertices[3].u = normalWidthOffset;
 	vertices[3].v = normalHeightOffset;
 
-	vertexSubUVBuffer = FEngineLoop::renderer.CreateVertexBuffer(vertices.GetData(), static_cast<UINT>(vertices.Num() * sizeof(FVertexTexture)));
+	vertexSubUVBuffer = UEditorEngine::renderer.CreateVertexBuffer(vertices.GetData(), static_cast<UINT>(vertices.Num() * sizeof(FVertexTexture)));
 	numTextVertices = static_cast<UINT>(vertices.Num());
 }

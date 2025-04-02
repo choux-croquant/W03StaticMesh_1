@@ -5,6 +5,8 @@
 #include "UnrealEd/EditorViewportClient.h"
 #include "LevelEditor/SLevelEditor.h"
 
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
+
 UText::UText()
 {
     SetType(StaticClass()->GetName());
@@ -244,7 +246,7 @@ void UText::CreateTextTextureVertexBuffer(const TArray<FVertexTexture>& _vertex,
 
 	ID3D11Buffer* vertexBuffer;
 	
-	HRESULT hr = FEngineLoop::graphicDevice.Device->CreateBuffer(&vertexbufferdesc, &vertexbufferSRD, &vertexBuffer);
+	HRESULT hr = UEditorEngine::graphicDevice.Device->CreateBuffer(&vertexbufferdesc, &vertexbufferSRD, &vertexBuffer);
 	if (FAILED(hr))
 	{
 		UE_LOG(LogLevel::Warning, "VertexBuffer Creation faild");
@@ -259,25 +261,25 @@ void UText::CreateTextTextureVertexBuffer(const TArray<FVertexTexture>& _vertex,
 
 void UText::TextMVPRendering()
 {
-    FEngineLoop::renderer.PrepareTextureShader();
+    UEditorEngine::renderer.PrepareTextureShader();
     //FEngineLoop::renderer.UpdateSubUVConstant(0, 0);
     //FEngineLoop::renderer.PrepareSubUVConstant();
     FMatrix Model = CreateBillboardMatrix();
 
-    FMatrix MVP = Model * GetEngine().GetLevelEditor()->GetActiveViewportClient()->GetViewMatrix() * GetEngine().GetLevelEditor()->GetActiveViewportClient()->GetProjectionMatrix();
+    FMatrix MVP = Model * GetEngine().EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetViewMatrix() * GetEngine().EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetProjectionMatrix();
     FMatrix NormalMatrix = FMatrix::Transpose(FMatrix::Inverse(Model));
     FVector4 UUIDColor = EncodeUUID() / 255.0f;
     if (this == GetWorld()->GetPickingGizmo()) {
-        FEngineLoop::renderer.UpdateConstant(MVP, NormalMatrix, UUIDColor, true);
+        UEditorEngine::renderer.UpdateConstant(MVP, NormalMatrix, UUIDColor, true);
     }
     else
-        FEngineLoop::renderer.UpdateConstant(MVP, NormalMatrix, UUIDColor, false);
+        UEditorEngine::renderer.UpdateConstant(MVP, NormalMatrix, UUIDColor, false);
 
     if (ShowFlags::GetInstance().currentFlags & static_cast<uint64>(EEngineShowFlags::SF_BillboardText)) {
-        FEngineLoop::renderer.RenderTextPrimitive(vertexTextBuffer, numTextVertices,
+        UEditorEngine::renderer.RenderTextPrimitive(vertexTextBuffer, numTextVertices,
             Texture->TextureSRV, Texture->SamplerState);
     }
     //Super::Render();
 
-    FEngineLoop::renderer.PrepareShader();
+    UEditorEngine::renderer.PrepareShader();
 }

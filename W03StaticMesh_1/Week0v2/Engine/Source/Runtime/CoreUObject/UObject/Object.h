@@ -1,6 +1,7 @@
 #pragma once
 #include "EngineLoop.h"
 #include "NameTypes.h"
+#include "Engine/Source/Runtime/Launch/Define.h"
 
 extern FEngineLoop GEngineLoop;
 
@@ -39,10 +40,7 @@ public:
     UObject();
     virtual ~UObject() = default;
 
-    UWorld* GetWorld()
-    {
-        return GEngineLoop.GetWorld();
-    }
+    UWorld* GetWorld();
 
     FEngineLoop& GetEngine()
     {

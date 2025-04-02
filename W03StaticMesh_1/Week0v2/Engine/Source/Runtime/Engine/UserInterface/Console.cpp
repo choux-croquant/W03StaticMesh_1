@@ -3,6 +3,7 @@
 #include <cstdio>
 
 #include "UnrealEd/EditorViewportClient.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
 
 
 // 싱글톤 인스턴스 반환
@@ -54,7 +55,7 @@ void Console::Draw() {
     ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always);
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
     // 창을 표시하고 닫힘 여부 확인
-    overlay.Render(GEngineLoop.graphicDevice.DeviceContext, width, height);
+    overlay.Render(GEngineLoop.EditorEngine->graphicDevice.DeviceContext, width, height);
     bExpand = ImGui::Begin("Console", &bWasOpen);
     if (!bExpand) {
         ImGui::End();

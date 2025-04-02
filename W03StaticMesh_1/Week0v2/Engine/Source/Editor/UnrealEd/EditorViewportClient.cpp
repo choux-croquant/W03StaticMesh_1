@@ -7,6 +7,7 @@
 #include "UnrealClient.h"
 #include "World.h"
 #include "GameFramework/Actor.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
 
 FVector FEditorViewportClient::Pivot = FVector(0.0f, 0.0f, 0.0f);
 float FEditorViewportClient::orthoSize = 10.0f;
@@ -31,7 +32,7 @@ void FEditorViewportClient::Initialize(int32 viewportIndex)
     ViewTransformPerspective.SetLocation(FVector(8.0f, 8.0f, 8.f));
     ViewTransformPerspective.SetRotation(FVector(0.0f, 45.0f, -135.0f));
     Viewport = new FViewport(static_cast<EViewScreenLocation>(viewportIndex));
-    ResizeViewport(GEngineLoop.graphicDevice.SwapchainDesc);
+    ResizeViewport(GEngineLoop.EditorEngine->graphicDevice.SwapchainDesc);
     ViewportIndex = viewportIndex;
 }
 
@@ -122,7 +123,7 @@ void FEditorViewportClient::Input()
     // Focus Selected Actor
     if (GetAsyncKeyState('F') & 0x8000)
     {
-        if (AActor* PickedActor = GEngineLoop.GetWorld()->GetSelectedActor())
+        if (AActor* PickedActor = GEngineLoop.EditorEngine->GetWorld()->GetSelectedActor())
         {
             FViewportCameraTransform& ViewTransform = ViewTransformPerspective;
             ViewTransform.SetLocation(
@@ -140,7 +141,7 @@ void FEditorViewportClient::ResizeViewport(const DXGI_SWAP_CHAIN_DESC& swapchain
     else {
         UE_LOG(LogLevel::Error, "Viewport is nullptr");
     }
-    AspectRatio = GEngineLoop.GetAspectRatio(GEngineLoop.graphicDevice.SwapChain);
+    AspectRatio = GEngineLoop.GetAspectRatio(GEngineLoop.EditorEngine->graphicDevice.SwapChain);
     UpdateProjectionMatrix();
     UpdateViewMatrix();
 }
@@ -152,7 +153,7 @@ void FEditorViewportClient::ResizeViewport(FRect Top, FRect Bottom, FRect Left, 
     else {
         UE_LOG(LogLevel::Error, "Viewport is nullptr");
     }
-    AspectRatio = GEngineLoop.GetAspectRatio(GEngineLoop.graphicDevice.SwapChain);
+    AspectRatio = GEngineLoop.GetAspectRatio(GEngineLoop.EditorEngine->graphicDevice.SwapChain);
     UpdateProjectionMatrix();
     UpdateViewMatrix();
 }

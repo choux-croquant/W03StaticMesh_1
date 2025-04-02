@@ -10,25 +10,75 @@
 #include "Components/SkySphereComponent.h"
 
 
-void UWorld::Initialize()
+UWorld* UWorld::CreateWorld(
+    const EWorldType::Type InWorldType
+)
 {
-    // TODO: Load Scene
-    CreateBaseObject();
-    //SpawnObject(OBJ_CUBE);
-    FManagerOBJ::CreateStaticMesh("Assets/Dodge/Dodge.obj");
+    // Create world instance
+    UWorld* NewWorld = FObjectFactory::ConstructObject<UWorld>();
 
-    FManagerOBJ::CreateStaticMesh("Assets/SkySphere.obj");
-  /*  AActor* SpawnedActor = SpawnActor<AActor>();
-    USkySphereComponent* skySphere = SpawnedActor->AddComponent<USkySphereComponent>();
-    skySphere->SetStaticMesh(FManagerOBJ::GetStaticMesh(L"SkySphere.obj"));
-    skySphere->GetStaticMesh()->GetMaterials()[0]->Material->SetDiffuse(FVector((float)32/255, (float)171/255, (float)191/255));*/
+    NewWorld->WorldType = InWorldType;
+
+    // Additional setting for each world type
+    switch (InWorldType)
+    {
+    case EWorldType::Editor:
+        // TODO : settig for editor type world
+        break;
+    case EWorldType::Game:
+        // TODO : setting for game type world
+        break;
+    case EWorldType::PIE:
+        // TODO : setting for PIC type world
+        break;
+    case EWorldType::EditorPreview:
+        // TODO : setting for editor preview type world
+        break;
+    default:
+        break;
+    }
+
+    NewWorld->Initialize(InWorldType);
+    return NewWorld;
 }
 
-void UWorld::CreateBaseObject()
+void UWorld::Initialize(EWorldType::Type InWorldType)
+{
+    switch (InWorldType)
+    {
+    case EWorldType::Editor:
+        CreateEditorObjects();
+        break;
+    case EWorldType::Game:
+        // TODO : setting for game type world
+        break;
+    case EWorldType::PIE:
+        CreateEditorObjects();
+        break;
+    case EWorldType::EditorPreview:
+        // TODO : setting for editor preview type world
+        break;
+    default:
+        break;
+    }
+
+    if (PersistentLevel == nullptr)
+    {
+        PersistentLevel = CreateNewLevel(DefaultMapName);
+    }
+
+    // 레벨 초기화
+    if (PersistentLevel)
+    {
+        PersistentLevel->Initialize();
+    }
+}
+
+void UWorld::CreateEditorObjects()
 {
     if (EditorPlayer == nullptr)
     {
-        EditorPlayer = FObjectFactory::ConstructObject<AEditorPlayer>();;
+        EditorPlayer = FObjectFactory::ConstructObject<AEditorPlayer>();
     }
 
     if (camera == nullptr)
@@ -42,9 +92,14 @@ void UWorld::CreateBaseObject()
     {
         LocalGizmo = FObjectFactory::ConstructObject<UTransformGizmo>();
     }
+    
+    if (worldGizmo == nullptr)
+    {
+        worldGizmo = FObjectFactory::ConstructObject<UObject>();
+    }
 }
 
-void UWorld::ReleaseBaseObject()
+void UWorld::ReleaseEditorObjects()
 {
     if (LocalGizmo)
     {
@@ -69,89 +124,101 @@ void UWorld::ReleaseBaseObject()
         delete EditorPlayer;
         EditorPlayer = nullptr;
     }
-
 }
 
 void UWorld::Tick(float DeltaTime)
 {
-	camera->TickComponent(DeltaTime);
-	EditorPlayer->Tick(DeltaTime);
-	LocalGizmo->Tick(DeltaTime);
+    // Tick for editor objects
+    if (camera) camera->TickComponent(DeltaTime);
+    if (EditorPlayer) EditorPlayer->Tick(DeltaTime);
+    if (LocalGizmo) LocalGizmo->Tick(DeltaTime);
 
-    // SpawnActor()에 의해 Actor가 생성된 경우, 여기서 BeginPlay 호출
-    for (AActor* Actor : PendingBeginPlayActors)
+    if (PersistentLevel)
     {
-        Actor->BeginPlay();
+        PersistentLevel->Tick(DeltaTime);
     }
-    PendingBeginPlayActors.Empty();
 
-    // 매 틱마다 Actor->Tick(...) 호출
-	for (AActor* Actor : ActorsArray)
-	{
-	    Actor->Tick(DeltaTime);
-	}
+    // Tick for not current levels
+    /*for (ULevel* Level : Levels)
+    {
+        if (Level != PersistentLevel && Level)
+        {
+            Level->Tick(DeltaTime);
+        }
+    }*/
 }
 
 void UWorld::Release()
 {
-	for (AActor* Actor : ActorsArray)
-	{
-		Actor->EndPlay(EEndPlayReason::WorldTransition);
-        TSet<UActorComponent*> Components = Actor->GetComponents();
-	    for (UActorComponent* Component : Components)
-	    {
-	        GUObjectArray.MarkRemoveObject(Component);
-	    }
-	    GUObjectArray.MarkRemoveObject(Actor);
-	}
-    ActorsArray.Empty();
+    if (PersistentLevel)
+    {
+        PersistentLevel->Release();
+        delete PersistentLevel;
+        PersistentLevel = nullptr;
+    }
 
-	pickingGizmo = nullptr;
-	ReleaseBaseObject();
+    for (ULevel* Level : Levels)
+    {
+        if (Level && Level != PersistentLevel)
+        {
+            Level->Release();
+            delete Level;
+        }
+    }
 
+    Levels.Empty();
+
+    pickingGizmo = nullptr;
+    ReleaseEditorObjects();
+
+    // Destroy pending objects
     GUObjectArray.ProcessPendingDestroyObjects();
 }
 
-bool UWorld::DestroyActor(AActor* ThisActor)
+ULevel* UWorld::CreateNewLevel(const FString& LevelName)
 {
-    if (ThisActor->GetWorld() == nullptr)
+    ULevel* NewLevel = FObjectFactory::ConstructObject<ULevel>();
+    NewLevel->LevelName = LevelName;
+    NewLevel->OwningWorld = this;  // OwningWorld 설정
+
+    // 레벨 목록에 추가
+    Levels.Add(NewLevel);
+
+    return NewLevel;
+}
+
+bool UWorld::LoadLevel(const FString& LevelPath)
+{
+    // TODO : add load logic
+
+    //LoadedLevel->OwningWorld = this;
+    return true;
+}
+
+bool UWorld::UnloadLevel(ULevel* Level)
+{
+    if (!Level || Level == PersistentLevel)
     {
         return false;
     }
 
-    if (ThisActor->IsActorBeingDestroyed())
-    {
-        return true;
-    }
+    // 레벨 언로드 로직
+    Level->Release();
+    Levels.Remove(Level);
+    delete Level;
 
-    // 액터의 Destroyed 호출
-    ThisActor->Destroyed();
-
-    if (ThisActor->GetOwner())
-    {
-        ThisActor->SetOwner(nullptr);
-    }
-
-    TSet<UActorComponent*> Components = ThisActor->GetComponents();
-    for (UActorComponent* Component : Components)
-    {
-        Component->DestroyComponent();
-    }
-
-    // World에서 제거
-    ActorsArray.Remove(ThisActor);
-
-    // 제거 대기열에 추가
-    GUObjectArray.MarkRemoveObject(ThisActor);
     return true;
 }
 
-void UWorld::SetActors(TSet<AActor*> NewActorArray)
+void UWorld::SetCurrentLevel(ULevel* Level)
 {
-    ActorsArray = NewActorArray;
+    if (Level && Levels.Contains(Level))
+    {
+        PersistentLevel = Level;
+    }
 }
 
 void UWorld::SetPickingGizmo(UObject* Object)
 {
-	pickingGizmo = Cast<USceneComponent>(Object);
+    pickingGizmo = Cast<USceneComponent>(Object);
 }

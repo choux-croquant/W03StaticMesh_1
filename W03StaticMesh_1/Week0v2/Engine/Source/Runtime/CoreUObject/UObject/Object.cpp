@@ -1,4 +1,5 @@
 #include "Engine/Source/Runtime/CoreUObject/UObject/Object.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
 
 #include "UClass.h"
 #include "UObjectHash.h"
@@ -21,6 +22,11 @@ UObject::UObject()
     , InternalIndex(std::numeric_limits<uint32>::max())
     , NamePrivate("None")
 {
+}
+
+UWorld* UObject::GetWorld()
+{
+    return GEngineLoop.EditorEngine->GetWorld();
 }
 
 bool UObject::IsA(const UClass* SomeBase) const

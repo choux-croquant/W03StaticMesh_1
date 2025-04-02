@@ -1,20 +1,16 @@
 #pragma once
 #include "Core/HAL/PlatformType.h"
 #include "D3D11RHI/GraphicDevice.h"
-#include "Renderer/Renderer.h"
-#include "Engine/ResourceMgr.h"
 
-class UnrealEd;
-class UImGuiManager;
-class UWorld;
-class FEditorViewportClient;
-class SSplitterV;
-class SSplitterH;
-class SLevelEditor;
+class UEditorEngine;
 
-class FEngineLoop
+class FEngineLoop  
 {
 public:
+    // 현재는 FEngineLoop가 Tick의 Timer 기능과
+    // UEditorEngine의 Wrapping 기능만 하도록 하고 있음
+    // Engine의 종류가 다양해질 경우, 공통 작업을 FEngineLoop에서 수행하는 등
+    // 분리를 시키면 될 것 같다
     FEngineLoop();
 
     int32 PreInit();
@@ -29,18 +25,9 @@ public:
     void StartPIEMode();
     void EndPIEMode();
 
-private:
-    void WindowInit(HINSTANCE hInstance);
 
 public:
-    static FGraphicsDevice graphicDevice;
-    static FRenderer renderer;
-    static FResourceMgr resourceMgr;
-    static uint32 TotalAllocationBytes;
-    static uint32 TotalAllocationCount;
-
-
-    HWND hWnd;
+    UEditorEngine* EditorEngine;
 
 private:
     UImGuiManager* UIMgr;
@@ -51,10 +38,5 @@ private:
     UnrealEd* UnrealEditor;
     bool bIsExit = false;
     const int32 targetFPS = 60;
-    bool bTestInput = false;
-
-public:
-    UWorld* GetWorld() const { return GWorld; }
-    SLevelEditor* GetLevelEditor() const { return LevelEditor; }
-    UnrealEd* GetUnrealEditor() const { return UnrealEditor; }
+    bool bIsExit = false;
 };

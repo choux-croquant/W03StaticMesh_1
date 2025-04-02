@@ -1,6 +1,7 @@
 #include "StaticMesh.h"
 #include "Engine/FLoaderOBJ.h"
 #include "UObject/ObjectFactory.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
 
 UStaticMesh::UStaticMesh()
 {
@@ -46,11 +47,11 @@ void UStaticMesh::SetData(OBJ::FStaticMeshRenderData* renderData)
 
     uint32 verticeNum = staticMeshRenderData->Vertices.Num();
     if (verticeNum <= 0) return;
-    staticMeshRenderData->VertexBuffer = GetEngine().renderer.CreateVertexBuffer(staticMeshRenderData->Vertices, verticeNum * sizeof(FVertexSimple));
+    staticMeshRenderData->VertexBuffer = GetEngine().EditorEngine->renderer.CreateVertexBuffer(staticMeshRenderData->Vertices, verticeNum * sizeof(FVertexSimple));
 
     uint32 indexNum = staticMeshRenderData->Indices.Num();
     if (indexNum > 0)
-        staticMeshRenderData->IndexBuffer = GetEngine().renderer.CreateIndexBuffer(staticMeshRenderData->Indices, indexNum * sizeof(uint32));
+        staticMeshRenderData->IndexBuffer = GetEngine().EditorEngine->renderer.CreateIndexBuffer(staticMeshRenderData->Indices, indexNum * sizeof(uint32));
 
     for (int materialIndex = 0; materialIndex < staticMeshRenderData->Materials.Num(); materialIndex++) {
         FStaticMaterial* newMaterialSlot = new FStaticMaterial();

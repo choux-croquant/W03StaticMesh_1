@@ -94,74 +94,24 @@ uint32 FEngineLoop::TotalAllocationBytes = 0;
 uint32 FEngineLoop::TotalAllocationCount = 0;
 
 FEngineLoop::FEngineLoop()
-    : hWnd(nullptr)
-    , UIMgr(nullptr)
-    , GWorld(nullptr)
-    , LevelEditor(nullptr)
-    , UnrealEditor(nullptr)
 {
+    EditorEngine = UEditorEngine::CreateEngine();
 }
 
 int32 FEngineLoop::PreInit()
 {
-    return 0;
+    return EditorEngine->PreInit();
 }
 
 int32 FEngineLoop::Init(HINSTANCE hInstance)
 {
-    /* must be initialized before window. */
-    UnrealEditor = new UnrealEd();
-    UnrealEditor->Initialize();
-
-    WindowInit(hInstance);
-    graphicDevice.Initialize(hWnd);
-    renderer.Initialize(&graphicDevice);
-
-    UIMgr = new UImGuiManager;
-    UIMgr->Initialize(hWnd, graphicDevice.Device, graphicDevice.DeviceContext);
-
-    resourceMgr.Initialize(&renderer, &graphicDevice);
-    LevelEditor = new SLevelEditor();
-    LevelEditor->Initialize();
-
-    GWorld = new UWorld;
-    GWorld->Initialize();
-
-    return 0;
+    return EditorEngine->Init(hInstance);
 }
 
 
 void FEngineLoop::Render()
 {
-    graphicDevice.Prepare();
-    if (LevelEditor->IsMultiViewport())
-    {
-        std::shared_ptr<FEditorViewportClient> viewportClient = GetLevelEditor()->GetActiveViewportClient();
-        for (int i = 0; i < 4; ++i)
-        {
-            LevelEditor->SetViewportClient(i);
-            // graphicDevice.DeviceContext->RSSetViewports(1, &LevelEditor->GetViewports()[i]->GetD3DViewport());
-            // graphicDevice.ChangeRasterizer(LevelEditor->GetActiveViewportClient()->GetViewMode());
-            // renderer.ChangeViewMode(LevelEditor->GetActiveViewportClient()->GetViewMode());
-            // renderer.PrepareShader();
-            // renderer.UpdateLightBuffer();
-            // RenderWorld();
-            renderer.PrepareRender();
-            renderer.Render(GetWorld(),LevelEditor->GetActiveViewportClient());
-        }
-        GetLevelEditor()->SetViewportClient(viewportClient);
-    }
-    else
-    {
-        // graphicDevice.DeviceContext->RSSetViewports(1, &LevelEditor->GetActiveViewportClient()->GetD3DViewport());
-        // graphicDevice.ChangeRasterizer(LevelEditor->GetActiveViewportClient()->GetViewMode());
-        // renderer.ChangeViewMode(LevelEditor->GetActiveViewportClient()->GetViewMode());
-        // renderer.PrepareShader();
-        // renderer.UpdateLightBuffer();
-        // RenderWorld();
-        renderer.PrepareRender();
-        renderer.Render(GetWorld(),LevelEditor->GetActiveViewportClient());
-    }
+    EditorEngine->Render();
 }
 
 void FEngineLoop::Tick()
@@ -190,22 +140,7 @@ void FEngineLoop::Tick()
                 break;
             }
         }
-
-        Input();
-        GWorld->Tick(elapsedTime);
-        LevelEditor->Tick(elapsedTime);
-        Render();
-        UIMgr->BeginFrame();
-        UnrealEditor->Render();
-
-        Console::GetInstance().Draw();
-
-        UIMgr->EndFrame();
-
-        // Pending 처리된 오브젝트 제거
-        GUObjectArray.ProcessPendingDestroyObjects();
-
-        graphicDevice.SwapBuffer();
+        EditorEngine->Tick(elapsedTime);
         do
         {
             Sleep(0);
@@ -218,30 +153,12 @@ void FEngineLoop::Tick()
 
 float FEngineLoop::GetAspectRatio(IDXGISwapChain* swapChain) const
 {
-    DXGI_SWAP_CHAIN_DESC desc;
-    swapChain->GetDesc(&desc);
-    return static_cast<float>(desc.BufferDesc.Width) / static_cast<float>(desc.BufferDesc.Height);
+    return EditorEngine->GetAspectRatio(swapChain);
 }
 
 void FEngineLoop::Input()
 {
-    if (GetAsyncKeyState('M') & 0x8000)
-    {
-        if (!bTestInput)
-        {
-            bTestInput = true;
-            if (LevelEditor->IsMultiViewport())
-            {
-                LevelEditor->OffMultiViewport();
-            }
-            else
-                LevelEditor->OnMultiViewport();
-        }
-    }
-    else
-    {
-        bTestInput = false;
-    }
+    EditorEngine->Input();
 }
 
 UWorld* FEngineLoop::DuplicateWorldForPIE(UWorld* SourceWorld)
@@ -334,33 +251,6 @@ void FEngineLoop::EndPIEMode()
 
 void FEngineLoop::Exit()
 {
-    LevelEditor->Release();
-    GWorld->Release();
-    delete GWorld;
-    UIMgr->Shutdown();
-    delete UIMgr;
-    resourceMgr.Release(&renderer);
-    renderer.Release();
-    graphicDevice.Release();
+    EditorEngine->Exit();
 }
 
-
-void FEngineLoop::WindowInit(HINSTANCE hInstance)
-{
-    WCHAR WindowClass[] = L"JungleWindowClass";
-
-    WCHAR Title[] = L"Game Tech Lab";
-
-    WNDCLASSW wndclass = {0};
-    wndclass.lpfnWndProc = WndProc;
-    wndclass.hInstance = hInstance;
-    wndclass.lpszClassName = WindowClass;
-
-    RegisterClassW(&wndclass);
-
-    hWnd = CreateWindowExW(
-        0, WindowClass, Title, WS_POPUP | WS_VISIBLE | WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 1000, 1000,
-        nullptr, nullptr, hInstance, nullptr
-    );
-}

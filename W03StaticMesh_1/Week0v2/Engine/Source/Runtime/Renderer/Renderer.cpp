@@ -20,6 +20,7 @@
 #include "PropertyEditor/ShowFlags.h"
 #include "UObject/UObjectIterator.h"
 #include "Components/SkySphereComponent.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
 
 void FRenderer::Initialize(FGraphicsDevice* graphics)
 {
@@ -471,7 +472,7 @@ void FRenderer::UpdateMaterial(const FObjMaterialInfo& MaterialInfo) const
 
     if (MaterialInfo.bHasTexture == true)
     {
-        std::shared_ptr<FTexture> texture = FEngineLoop::resourceMgr.GetTexture(MaterialInfo.DiffuseTexturePath);
+        std::shared_ptr<FTexture> texture = UEditorEngine::resourceMgr.GetTexture(MaterialInfo.DiffuseTexturePath);
         Graphics->DeviceContext->PSSetShaderResources(0, 1, &texture->TextureSRV);
         Graphics->DeviceContext->PSSetSamplers(0, 1, &texture->SamplerState);
     }
@@ -1082,7 +1083,7 @@ void FRenderer::RenderGizmos(const UWorld* World, const std::shared_ptr<FEditorV
     #pragma endregion GizmoDepth
 
     //  fill solid,  Wirframe 에서도 제대로 렌더링되기 위함
-    Graphics->DeviceContext->RSSetState(FEngineLoop::graphicDevice.RasterizerStateSOLID);
+    Graphics->DeviceContext->RSSetState(UEditorEngine::graphicDevice.RasterizerStateSOLID);
     
     for (auto GizmoComp : GizmoObjs)
     {
@@ -1160,7 +1161,7 @@ void FRenderer::RenderBillboards(UWorld* World, std::shared_ptr<FEditorViewportC
         }
         else if (UText* Text = Cast<UText>(BillboardComp))
         {
-            FEngineLoop::renderer.RenderTextPrimitive(
+            UEditorEngine::renderer.RenderTextPrimitive(
                 Text->vertexTextBuffer, Text->numTextVertices,
                 Text->Texture->TextureSRV, Text->Texture->SamplerState
             );

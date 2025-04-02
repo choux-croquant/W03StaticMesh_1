@@ -15,6 +15,9 @@
 #include "UnrealEd/EditorViewportClient.h"
 #include "PropertyEditor/ShowFlags.h"
 
+#include "UnrealEd/SceneMgr.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
+
 void ControlEditorPanel::Render()
 {
     /* Pre Setup */
@@ -89,7 +92,32 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
         
         if (ImGui::MenuItem("New Scene"))
         {
-            // TODO: New Scene
+            UWorld* World = GEngineLoop.EditorEngine->GetWorld();
+            if (World)
+            {
+                // Remove all existing actors
+                TSet<AActor*> ActorsToRemove;
+                for (AActor* Actor : World->PersistentLevel->GetActors())
+                {
+                    ActorsToRemove.Add(Actor);
+                }
+                for (AActor* Actor : ActorsToRemove)
+                {
+                    World->DestroyActor(Actor);
+                }
+
+                // Reset camera to default position
+                auto ActiveViewportClient = GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient();
+                if (ActiveViewportClient)
+                {
+                    ActiveViewportClient->ViewTransformPerspective.ViewLocation = FVector(0, 0, 0);
+                    ActiveViewportClient->ViewTransformPerspective.ViewRotation = FVector(0, 0, 0);
+                    ActiveViewportClient->ViewFOV = 90.0f;
+                    ActiveViewportClient->nearPlane = 0.1f;
+                    ActiveViewportClient->farPlane = 10000.0f;
+                }
+            }
+            tinyfd_messageBox("Success", "새로운 씬이 생성되었습니다.", "ok", "info", 1);
         }
 
         if (ImGui::MenuItem("Load Scene"))
@@ -103,16 +131,21 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
                 ImGui::End();
                 return;
             }
-
-            // TODO: Load Scene
+            else {
+                tinyfd_messageBox("Success", "파일을 확인했습니다. 불러오겠습니다.", "ok", "info", 1);
+                // TODO: Load Scene
+                FSceneMgr::SpawnActorFromSceneData(FSceneMgr::LoadSceneFromFile(FileName));
+                ImGui::End();
+                return;
+            }
         }
 
         ImGui::Separator();
         
         if (ImGui::MenuItem("Save Scene"))
         {
-            char const * lFilterPatterns[1]={"*.scene"};
-            const char* FileName =  tinyfd_saveFileDialog("Save Scene File", "", 1, lFilterPatterns,"Scene(.scene) file");
+            char const* lFilterPatterns[1] = { "*.scene" };
+            const char* FileName = tinyfd_saveFileDialog("Save Scene File", "", 1, lFilterPatterns, "Scene(.scene) file");
 
             if (FileName == nullptr)
             {
@@ -120,9 +153,48 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
                 return;
             }
 
-            // TODO: Save Scene
+            UWorld* World = GEngineLoop.EditorEngine->GetWorld();
+            if (World)
+            {
+                SceneData sceneData;
+                sceneData.Version = 1;
+                sceneData.NextUUID = 1;
 
-            tinyfd_messageBox("알림", "저장되었습니다.", "ok", "info", 1);
+                // Populate sceneData.Primitives
+                for (AActor* Actor : World->PersistentLevel->GetActors())
+                {
+                    USceneComponent* RootComponent = Actor->GetRootComponent();
+                    if (RootComponent)
+                    {
+                        sceneData.Primitives[Actor->GetUUID()] = RootComponent;
+                    }
+                }
+
+                // Add camera data
+                /*auto ActiveViewportClient = GEngineLoop.GetLevelEditor()->GetActiveViewportClient();
+                if (ActiveViewportClient)
+                {
+                    UCameraComponent* Obj = FObjectFactory::ConstructObject<UCameraComponent>();
+                    UCameraComponent* CameraComponent = Cast<UCameraComponent>(Obj);
+
+                    CameraComponent->SetLocation(ActiveViewportClient->ViewTransformPerspective.ViewLocation);
+                    CameraComponent->SetRotation(ActiveViewportClient->ViewTransformPerspective.ViewRotation);
+                    CameraComponent->SetFOV(ActiveViewportClient->ViewFOV);
+                    CameraComponent->SetNearClip(ActiveViewportClient->nearPlane);
+                    CameraComponent->SetFarClip(ActiveViewportClient->farPlane);
+                    sceneData.Cameras[0] = CameraComponent;
+                }*/
+
+                // Save scene to file
+                if (FSceneMgr::SaveSceneToFile(FString(FileName), sceneData))
+                {
+                    tinyfd_messageBox("Success", "저장되었습니다.", "ok", "info", 1);
+                }
+                else
+                {
+                    tinyfd_messageBox("Error", "저장에 실패했습니다.", "ok", "error", 1);
+                }
+            }
         }
 
         ImGui::Separator();
@@ -200,16 +272,16 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
     if (ImGui::BeginPopup("SliderControl"))
     {
         ImGui::Text("Grid Scale");
-        GridScale = GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->GetGridSize();
+        GridScale = GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetGridSize();
         ImGui::SetNextItemWidth(120.0f);
         if (ImGui::DragFloat("##Grid Scale", &GridScale, 0.1f, 1.0f, 20.0f, "%.1f"))
         {
-            GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->SetGridSize(GridScale);
+            GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient()->SetGridSize(GridScale);
         }
         ImGui::Separator();
 
         ImGui::Text("Camera FOV");
-        FOV = &GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->ViewFOV;
+        FOV = &GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient()->ViewFOV;
         ImGui::SetNextItemWidth(120.0f);
         if (ImGui::DragFloat("##Fov", FOV, 0.1f, 30.0f, 120.0f, "%.1f"))
         {
@@ -219,11 +291,11 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
         ImGui::Spacing();
 
         ImGui::Text("Camera Speed");
-        CameraSpeed = GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar();
+        CameraSpeed = GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar();
         ImGui::SetNextItemWidth(120.0f);
         if (ImGui::DragFloat("##CamSpeed", &CameraSpeed, 0.1f, 0.198f, 192.0f, "%.1f"))
         {
-            GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->SetCameraSpeedScalar(CameraSpeed);
+            GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient()->SetCameraSpeedScalar(CameraSpeed);
         }
         
         ImGui::EndPopup();
@@ -258,7 +330,7 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
             if (ImGui::Selectable(primitive.label))
             {
                 // GEngineLoop.GetWorld()->SpawnObject(static_cast<OBJECTS>(primitive.obj));
-                UWorld* World = GEngineLoop.GetWorld();
+                UWorld* World = GEngineLoop.EditorEngine->GetWorld();
                 AActor* SpawnedActor = nullptr;
                 switch (static_cast<OBJECTS>(primitive.obj))
                 {
@@ -340,7 +412,7 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
 
 void ControlEditorPanel::CreateFlagButton() const
 {
-    auto ActiveViewport = GEngineLoop.GetLevelEditor()->GetActiveViewportClient();
+    auto ActiveViewport = GEngineLoop.EditorEngine->GetLevelEditor()->GetActiveViewportClient();
 
     const char* ViewTypeNames[] = { "Perspective", "Top", "Bottom", "Left", "Right", "Front", "Back" };
     ELevelViewportType ActiveViewType = ActiveViewport->GetViewportType();
@@ -389,8 +461,8 @@ void ControlEditorPanel::CreateFlagButton() const
             if (ImGui::Selectable(ViewModeNames[i], bIsSelected))
             {
                 ActiveViewport->SetViewMode((EViewModeIndex)i);
-                FEngineLoop::graphicDevice.ChangeRasterizer(ActiveViewport->GetViewMode());
-                FEngineLoop::renderer.ChangeViewMode(ActiveViewport->GetViewMode());
+                UEditorEngine::graphicDevice.ChangeRasterizer(ActiveViewport->GetViewMode());
+                UEditorEngine::renderer.ChangeViewMode(ActiveViewport->GetViewMode());
             }
 
             if (bIsSelected)
@@ -433,7 +505,7 @@ void ControlEditorPanel::CreateFlagButton() const
 // code is so dirty / Please refactor
 void ControlEditorPanel::CreateSRTButton(ImVec2 ButtonSize) const
 {
-    AEditorPlayer* Player = GEngineLoop.GetWorld()->GetEditorPlayer();
+    AEditorPlayer* Player = GEngineLoop.EditorEngine->GetWorld()->GetEditorPlayer();
 
     ImVec4 ActiveColor = ImVec4(0.00f, 0.00f, 0.85f, 1.0f);
     

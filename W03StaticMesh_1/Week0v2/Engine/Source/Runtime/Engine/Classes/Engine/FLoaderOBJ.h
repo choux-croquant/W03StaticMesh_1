@@ -7,6 +7,7 @@
 #include "Container/Map.h"
 #include "HAL/PlatformType.h"
 #include "Serialization/Serializer.h"
+#include "Engine/Source/Runtime/Launch/EditorEngine.h"
 
 class UStaticMesh;
 struct FManagerOBJ;
@@ -383,12 +384,12 @@ struct FLoaderOBJ
     static bool CreateTextureFromFile(const FWString& Filename)
     {
         
-        if (FEngineLoop::resourceMgr.GetTexture(Filename))
+        if (UEditorEngine::resourceMgr.GetTexture(Filename))
         {
             return true;
         }
 
-        HRESULT hr = FEngineLoop::resourceMgr.LoadTextureFromFile(FEngineLoop::graphicDevice.Device, FEngineLoop::graphicDevice.DeviceContext, Filename.c_str());
+        HRESULT hr = UEditorEngine::resourceMgr.LoadTextureFromFile(UEditorEngine::graphicDevice.Device, UEditorEngine::graphicDevice.DeviceContext, Filename.c_str());
 
         if (FAILED(hr))
         {
@@ -679,9 +680,9 @@ public:
         {
             for (const FWString& Texture : Textures)
             {
-                if (FEngineLoop::resourceMgr.GetTexture(Texture) == nullptr)
+                if (UEditorEngine::resourceMgr.GetTexture(Texture) == nullptr)
                 {
-                    FEngineLoop::resourceMgr.LoadTextureFromFile(FEngineLoop::graphicDevice.Device, FEngineLoop::graphicDevice.DeviceContext, Texture.c_str());
+                    UEditorEngine::resourceMgr.LoadTextureFromFile(UEditorEngine::graphicDevice.Device, UEditorEngine::graphicDevice.DeviceContext, Texture.c_str());
                 }
             }
         }
