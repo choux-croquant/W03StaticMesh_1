@@ -10,6 +10,15 @@ class AStaticMeshActor : public AActor
 public:
     AStaticMeshActor();
 
+    AStaticMeshActor* Duplicate() override {
+        AStaticMeshActor* NewActor = FObjectFactory::ConstructObject<AStaticMeshActor>();
+        NewActor->RootComponent = this->RootComponent;
+        NewActor->CopyPropertiesFrom(this);
+        NewActor->DuplicateSubObjects(this);
+        
+        return NewActor;
+    }
+
     UStaticMeshComponent* GetStaticMeshComponent() const { return StaticMeshComponent; }
 
 private:

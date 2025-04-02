@@ -11,6 +11,8 @@
 #include "LevelEditor/SLevelEditor.h"
 #include "Engine/EngineTypes.h"
 #include "Engine/Source/Runtime/InteractiveToolsFramework/BaseGizmos/TransformGizmo.h"
+#include "Engine/Source/Runtime/Engine/Classes/Components/StaticMeshComponent.h"
+#include "Engine/Source/Runtime/Engine/Classes/Engine/StaticMeshActor.h"
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -254,13 +256,25 @@ UWorld* UEditorEngine::DuplicateWorldForPIE(UWorld* SourceWorld)
 
     for (AActor* SourceActor : BackupActors)
     {
+        if (!SourceActor)
+            continue;
+
         if (SourceActor->IsA<UTransformGizmo>()) 
         {
             continue;
         }
 
-        if (!SourceActor)
+        if (SourceActor->IsA<UStaticMeshComponent>()) {
+            AStaticMeshActor* SourceStaticActor = Cast<AStaticMeshActor>(SourceActor);
+            AStaticMeshActor* ClonedActor = SourceStaticActor->Duplicate();
+            if (ClonedActor)
+            {
+                PIEWorld->PersistentLevel->AddActor(ClonedActor);
+            }
             continue;
+        }
+
+       
 
         // ✅ 새로운 액터 복제 (깊은 복사)
         AActor* ClonedActor = SourceActor->Duplicate();
