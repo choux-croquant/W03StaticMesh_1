@@ -972,30 +972,50 @@ void FRenderer::RenderBatch(
 
 void FRenderer::PrepareRender()
 {
-    for (const auto iter : GEngineLoop.EditorEngine->GetWorld()->PersistentLevel->GetActors())
-    {
-        for (const auto iterComp : iter->GetComponents()) {
-            if (UStaticMeshComponent* pStaticMeshComp = Cast<UStaticMeshComponent>(iterComp))
+    // 재귀적으로 컴포넌트 트리 순회하는 람다 함수
+    auto ProcessComponentTree = [&](USceneComponent* Component, auto&& ProcessComponentTree) -> void
+        {
+            if (!Component) return;
+
+            // 현재 컴포넌트 처리
+            if (UStaticMeshComponent* pStaticMeshComp = Cast<UStaticMeshComponent>(Component))
             {
-                if (!Cast<UGizmoBaseComponent>(iterComp))
+                if (!pStaticMeshComp->IsA<UGizmoBaseComponent>())
                     StaticMeshObjs.Add(pStaticMeshComp);
             }
-            if (UGizmoBaseComponent* pGizmoComp = Cast<UGizmoBaseComponent>(iterComp))
+            else if (UGizmoBaseComponent* pGizmoComp = Cast<UGizmoBaseComponent>(Component))
             {
                 GizmoObjs.Add(pGizmoComp);
             }
-            if (UTextRenderComponent* pTextComp = Cast<UTextRenderComponent>(iterComp))
+            else if (UTextRenderComponent* pTextComp = Cast<UTextRenderComponent>(Component))
             {
                 TextObjs.Add(pTextComp);
             }
-            if (UBillboardComponent* pBillboardComp = Cast<UBillboardComponent>(iterComp))
+            else if (UBillboardComponent* pBillboardComp = Cast<UBillboardComponent>(Component))
             {
                 BillboardObjs.Add(pBillboardComp);
             }
-            if (ULightComponentBase* pLightComp = Cast<ULightComponentBase>(iterComp))
+            else if (ULightComponentBase* pLightComp = Cast<ULightComponentBase>(Component))
             {
                 LightObjs.Add(pLightComp);
             }
+
+            TArray<USceneComponent*> ChildComponents = Component->GetAttachChildren();
+            for (USceneComponent* Child : ChildComponents)
+            {
+                ProcessComponentTree(Child, ProcessComponentTree);
+            }
+        };
+
+    UWorld* World = GEngineLoop.EditorEngine->GetWorld();
+    if (!World) return;
+
+    for (AActor* Actor : World->PersistentLevel->GetActors())
+    {
+        Actor->InitializeComponents();
+        if (USceneComponent* RootComp = Actor->GetRootComponent())
+        {
+            ProcessComponentTree(RootComp, ProcessComponentTree);
         }
     }
 }
